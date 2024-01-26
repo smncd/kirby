@@ -47,7 +47,7 @@ class Language implements Stringable
 	protected bool $single;
 	protected array $slugs;
 	protected array $smartypants;
-	protected array $translations;
+	protected LanguageTranslations $translations;
 	protected string|null $url;
 
 	/**
@@ -69,7 +69,6 @@ class Language implements Stringable
 		$this->single       = $props['single'] ?? false;
 		$this->slugs        = $props['slugs'] ?? [];
 		$this->smartypants  = $props['smartypants'] ?? [];
-		$this->translations = $props['translations'] ?? [];
 		$this->url          = $props['url'] ?? null;
 
 		if ($locale = $props['locale'] ?? null) {
@@ -77,6 +76,8 @@ class Language implements Stringable
 		} else {
 			$this->locale = [LC_ALL => $this->code];
 		}
+
+		$this->translations = new LanguageTranslations($this, $props['translations'] ?? []);
 	}
 
 	/**
@@ -131,7 +132,7 @@ class Language implements Stringable
 			'name'         => $this->name,
 			'slugs'        => $this->slugs,
 			'smartypants'  => $this->smartypants,
-			'translations' => $this->translations,
+			'translations' => $this->translations->toArray(),
 			'url'          => $this->url,
 		], $props));
 	}
@@ -466,7 +467,11 @@ class Language implements Stringable
 	 */
 	public function save(): static
 	{
-		$existingData = Data::read($this->root(), fail: false);
+		try {
+			$existingData = Data::read($this->root(), fail: false);
+		} catch (Throwable) {
+			$existingData = [];
+		}
 
 		$data = [
 			...$existingData,
@@ -475,11 +480,18 @@ class Language implements Stringable
 			'direction'    => $this->direction(),
 			'locale'       => Locale::export($this->locale()),
 			'name'         => $this->name(),
-			'translations' => $this->translations(),
+			'translations' => $this->translations()->toArray(),
 			'url'          => $this->url,
 		];
 
 		ksort($data);
+
+		// save translations to the custom root and remove translations
+		// to prevent duplication write into the language file
+		if ($this->translations()->root() !== null) {
+			$this->translations()->save($data['translations'] ?? []);
+			$data['translations'] = [];
+		}
 
 		Data::write($this->root(), $data);
 
@@ -541,9 +553,9 @@ class Language implements Stringable
 	}
 
 	/**
-	 * Returns the translation strings for this language
+	 * Returns the language translations object for this language
 	 */
-	public function translations(): array
+	public function translations(): LanguageTranslations
 	{
 		return $this->translations;
 	}
@@ -572,6 +584,15 @@ class Language implements Stringable
 		// make sure the slug is nice and clean
 		$props['slug'] = Str::slug($props['slug'] ?? null);
 
+		$kirby   = App::instance();
+		$updated = $this->clone($props);
+
+		if (isset($props['translations']) === true) {
+			$updated->translations = new LanguageTranslations($updated, $props['translations']);
+		}
+
+		// validate the updated language
+		LanguageRules::update($updated);
 
 		// trigger before hook
 		$language = $kirby->apply(
