@@ -2,6 +2,7 @@
 
 namespace Kirby\Content;
 
+use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
 
 /**
@@ -18,79 +19,62 @@ use Kirby\Cms\ModelWithContent;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  */
-interface ContentStorageHandler
+abstract class ContentStorageHandler
 {
-	public function __construct(ModelWithContent $model);
+	abstract public function __construct(ModelWithContent $model);
 
 	/**
 	 * Creates a new version
 	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 * @param array<string, string> $fields Content fields
 	 */
-	public function create(string $versionType, string $lang, array $fields): void;
+	abstract public function create(VersionId $versionId, Language $lang, array $fields): void;
 
 	/**
 	 * Deletes an existing version in an idempotent way if it was already deleted
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 */
-	public function delete(string $version, string $lang): void;
+	abstract public function delete(VersionId $versionId, Language $lang): void;
 
 	/**
 	 * Checks if a version exists
-	 *
-	 * @param string|null $lang Code `'default'` in a single-lang installation;
-	 *                          checks for "any language" if not provided
 	 */
-	public function exists(string $version, string|null $lang): bool;
+	abstract public function exists(VersionId $versionId, Language $lang): bool;
 
 	/**
 	 * Returns the modification timestamp of a version if it exists
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 */
-	public function modified(string $version, string $lang): int|null;
+	abstract public function modified(VersionId $versionId, Language $lang): int|null;
 
 	/**
 	 * Moves content from one version-language combination to another
-	 *
-	 * @param string $fromLang Code `'default'` in a single-lang installation
-	 * @param string $toLang Code `'default'` in a single-lang installation
 	 */
-	public function move(
-		string $fromVersion,
-		string $fromLang,
-		string $toVersion,
-		string $toLang
+	abstract public function move(
+		VersionId $fromVersionId,
+		Language $fromLang,
+		VersionId $toVersionId,
+		Language $toLang
 	): void;
 
 	/**
 	 * Returns the stored content fields
 	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 * @return array<string, string>
-	 *
 	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
 	 */
-	public function read(string $version, string $lang): array;
+	abstract public function read(VersionId $versionId, Language $lang): array;
 
 	/**
 	 * Updates the modification timestamp of an existing version
 	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 *
 	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
 	 */
-	public function touch(string $version, string $lang): void;
+	abstract public function touch(VersionId $versionId, Language $lang): void;
 
 	/**
 	 * Updates the content fields of an existing version
 	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 * @param array<string, string> $fields Content fields
 	 *
 	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
 	 */
-	public function update(string $version, string $lang, array $fields): void;
+	abstract public function update(VersionId $versionID, Language $lang, array $fields): void;
 }
