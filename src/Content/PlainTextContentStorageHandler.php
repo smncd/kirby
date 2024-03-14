@@ -2,14 +2,19 @@
 
 namespace Kirby\Content;
 
+use Kirby\Cms\File;
 use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Cms\Page;
 use Kirby\Cms\SingleLanguage;
+use Kirby\Cms\Site;
+use Kirby\Cms\User;
 use Kirby\Data\Data;
 use Kirby\Exception\Exception;
 use Kirby\Exception\LogicException;
 use Kirby\Filesystem\Dir;
 use Kirby\Filesystem\F;
+use Kirby\Toolkit\A;
 use Kirby\Uuid\Uuids;
 
 /**
@@ -199,6 +204,61 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 				$fields['uuid'] = null;
 			}
 		}
+
+		$fields = match(true) {
+			$this->model instanceof File
+				=> $this->normalizeFileFields($this->model, $field),
+			$this->model instanceof Page
+				=> $this->normalizePageFields($this->model, $field),
+			$this->model instanceof Site
+				=> $this->normalizeSiteFields($this->model, $field),
+			$this->model instanceof User
+				=> $this->normalizeUserFields($this->model, $field),
+		};
+
+		return $fields;
+	}
+
+	protected function normalizeFileFields(File $model, array $fields): array
+	{
+		// only add the template in, if the $data array
+		// doesn't explicitly unsets it
+		if (
+			array_key_exists('template', $fields) === false &&
+			$template = $model->template()
+		) {
+			$fields['template'] = $template;
+		}
+
+		return $fields;
+	}
+
+	protected function normalizePageFields(Page $model, array $fields): array
+	{
+		return A::prepend($fields, [
+			'title' => $fields['title'] ?? null,
+			'slug'  => $fields['slug']  ?? null
+		]);
+	}
+
+	protected function normalizeSiteFields(Site $model, array $fields): array
+	{
+		// always put the title first
+		return A::prepend($fields, [
+			'title' => $fields['title'] ?? null
+		]);
+	}
+
+	protected function normalizeUserFields(User $model, array $fields): array
+	{
+		// remove stuff that has nothing to do in the text files
+		unset(
+			$fields['email'],
+			$fields['language'],
+			$fields['name'],
+			$fields['password'],
+			$fields['role']
+		);
 
 		return $fields;
 	}
