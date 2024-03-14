@@ -254,6 +254,17 @@ class Language
 		return file_exists($this->root());
 	}
 
+	public static function fromCode(string|null $code = null): static|null
+	{
+		$kirby = App::instance();
+
+		if ($kirby->multilang() === false) {
+			return new SingleLanguage();
+		}
+
+		return $kirby->language($code ?? 'default');
+	}
+
 	/**
 	 * Checks if this is the default language
 	 * for the site.
