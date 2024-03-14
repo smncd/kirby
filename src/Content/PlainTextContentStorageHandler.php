@@ -2,13 +2,15 @@
 
 namespace Kirby\Content;
 
+use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Cms\SingleLanguage;
 use Kirby\Data\Data;
 use Kirby\Exception\Exception;
-use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Kirby\Filesystem\Dir;
 use Kirby\Filesystem\F;
+use Kirby\Uuid\Uuids;
 
 /**
  * Content storage handler using plain text files
@@ -22,7 +24,7 @@ use Kirby\Filesystem\F;
  * @copyright Bastian Allgeier
  * @license   https://getkirby.com/license
  */
-class PlainTextContentStorageHandler implements ContentStorageHandler
+class PlainTextContentStorageHandler extends ContentStorageHandler
 {
 	public function __construct(protected ModelWithContent $model)
 	{
@@ -31,28 +33,19 @@ class PlainTextContentStorageHandler implements ContentStorageHandler
 	/**
 	 * Creates a new version
 	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 * @param array<string, string> $fields Content fields
 	 */
-	public function create(string $versionType, string $lang, array $fields): void
+	public function create(VersionId $versionId, Language $lang, array $fields): void
 	{
-		$success = Data::write($this->contentFile($versionType, $lang), $fields);
-
-		// @codeCoverageIgnoreStart
-		if ($success !== true) {
-			throw new Exception('Could not write new content file');
-		}
-		// @codeCoverageIgnoreEnd
+		$this->write($versionId, $lang, $fields);
 	}
 
 	/**
 	 * Deletes an existing version in an idempotent way if it was already deleted
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 */
-	public function delete(string $version, string $lang): void
+	public function delete(VersionId $versionId, Language $lang): void
 	{
-		$contentFile = $this->contentFile($version, $lang);
+		$contentFile = $this->file($versionId, $lang);
 		$success = F::unlink($contentFile);
 
 		// @codeCoverageIgnoreStart
@@ -79,106 +72,19 @@ class PlainTextContentStorageHandler implements ContentStorageHandler
 
 	/**
 	 * Checks if a version exists
-	 *
-	 * @param string|null $lang Code `'default'` in a single-lang installation;
-	 *                          checks for "any language" if not provided
 	 */
-	public function exists(string $version, string|null $lang): bool
+	public function exists(VersionId $versionId, Language $lang): bool
 	{
-		if ($lang === null) {
-			foreach ($this->contentFiles($version) as $file) {
-				if (is_file($file) === true) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		return is_file($this->contentFile($version, $lang)) === true;
-	}
-
-	/**
-	 * Returns the modification timestamp of a version
-	 * if it exists
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 */
-	public function modified(string $version, string $lang): int|null
-	{
-		$modified = F::modified($this->contentFile($version, $lang));
-
-		if (is_int($modified) === true) {
-			return $modified;
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns the stored content fields
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 * @return array<string, string>
-	 *
-	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
-	 */
-	public function read(string $version, string $lang): array
-	{
-		return Data::read($this->contentFile($version, $lang));
-	}
-
-	/**
-	 * Updates the modification timestamp of an existing version
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 *
-	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
-	 */
-	public function touch(string $version, string $lang): void
-	{
-		$success = touch($this->contentFile($version, $lang));
-
-		// @codeCoverageIgnoreStart
-		if ($success !== true) {
-			throw new Exception('Could not touch existing content file');
-		}
-		// @codeCoverageIgnoreEnd
-	}
-
-	/**
-	 * Updates the content fields of an existing version
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
-	 * @param array<string, string> $fields Content fields
-	 *
-	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
-	 */
-	public function update(string $version, string $lang, array $fields): void
-	{
-		$success = Data::write($this->contentFile($version, $lang), $fields);
-
-		// @codeCoverageIgnoreStart
-		if ($success !== true) {
-			throw new Exception('Could not write existing content file');
-		}
-		// @codeCoverageIgnoreEnd
+		return is_file($this->file($versionId, $lang)) === true;
 	}
 
 	/**
 	 * Returns the absolute path to the content file
-	 * @internal To be made `protected` when the CMS core no longer relies on it
-	 *
-	 * @param string $lang Code `'default'` in a single-lang installation
 	 *
 	 * @throws \Kirby\Exception\LogicException If the model type doesn't have a known content filename
 	 */
-	public function contentFile(string $version, string $lang): string
+	protected function file(VersionId $versionId, Language $lang): string
 	{
-		if (in_array($version, ['published', 'changes']) !== true) {
-			throw new InvalidArgumentException('Invalid version identifier "' . $version . '"');
-		}
-
 		$extension = $this->model->kirby()->contentExtension();
 		$directory = $this->model->root();
 
@@ -201,53 +107,130 @@ class PlainTextContentStorageHandler implements ContentStorageHandler
 			// changes versions don't need anything extra
 			// (drafts already have the `_drafts` prefix in their root),
 			// but a published version is not possible
-			if ($version === 'published') {
+			if ($versionId === VersionId::PUBLISHED) {
 				throw new LogicException('Drafts cannot have a published content file');
 			}
-		} elseif ($version === 'changes') {
+		} elseif ($versionId === VersionId::CHANGES) {
 			// other model type or published page that has a changes subfolder
 			$directory .= '/_changes';
 		}
 
-		if ($lang !== 'default') {
-			return $directory . '/' . $filename . '.' . $lang . '.' . $extension;
+		if ($lang instanceof SingleLanguage) {
+			return $directory . '/' . $filename . '.' . $extension;
 		}
 
-		return $directory . '/' . $filename . '.' . $extension;
+		return $directory . '/' . $filename . '.' . $lang->code() . '.' . $extension;
 	}
 
 	/**
-	 * Returns an array with content files of all languages
-	 * @internal To be made `protected` when the CMS core no longer relies on it
+	 * Returns the modification timestamp of a version
+	 * if it exists
 	 */
-	public function contentFiles(string $version): array
+	public function modified(VersionId $versionId, Language $lang): int|null
 	{
-		if ($this->model->kirby()->multilang() === true) {
-			return $this->model->kirby()->languages()->values(
-				fn ($lang) => $this->contentFile($version, $lang)
-			);
+		$modified = F::modified($this->file($versionId, $lang));
+
+		if (is_int($modified) === true) {
+			return $modified;
 		}
 
-		return [
-			$this->contentFile($version, 'default')
-		];
+		return null;
+	}
+
+	/**
+	 * Returns the stored content fields
+	 *
+	 * @return array<string, string>
+	 *
+	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
+	 */
+	public function read(VersionId $versionId, Language $lang): array
+	{
+		return Data::read($this->file($versionId, $lang));
+	}
+
+	/**
+	 * Updates the modification timestamp of an existing version
+	 *
+	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
+	 */
+	public function touch(VersionId $versionId, Language $lang): void
+	{
+		$success = touch($this->file($versionId, $lang));
+
+		// @codeCoverageIgnoreStart
+		if ($success !== true) {
+			throw new Exception('Could not touch existing content file');
+		}
+		// @codeCoverageIgnoreEnd
 	}
 
 	/**
 	 * Moves content from one version-language combination to another
-	 *
-	 * @param string $fromLang Code `'default'` in a single-lang installation
-	 * @param string $toLang Code `'default'` in a single-lang installation
 	 */
 	public function move(
-		string $fromVersion,
-		string $fromLang,
-		string $toVersion,
-		string $toLang
+		VersionId $fromVersionId,
+		Language $fromLang,
+		VersionId $toVersionId,
+		Language $toLang
 	): void {
 		F::move(
-			$this->contentFile($fromVersion, $fromLang),
-			$this->contentFile($toVersion, $toLang)
+			$this->file($fromVersionId, $fromLang),
+			$this->file($toVersionId, $toLang)
 		);
 	}
+
+	/**
+	 * Normalize all fields before they get saved.
+	 * Remove those that should not be stored
+	 */
+	protected function normalize(VersionId $versionId, Language $lang, array $fields): array
+	{
+		if ($lang->isDefault() === false) {
+			// remove all untranslatable fields
+			foreach ($this->model->blueprint()->fields() as $field) {
+				if (($field['translate'] ?? true) === false) {
+					$fields[strtolower($field['name'])] = null;
+				}
+			}
+
+			// remove UUID for non-default languages
+			if (Uuids::enabled() === true && isset($fields['uuid']) === true) {
+				$fields['uuid'] = null;
+			}
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Updates the content fields of an existing version
+	 *
+	 * @param array<string, string> $fields Content fields
+	 *
+	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
+	 */
+	public function update(VersionId $versionId, Language $lang, array $fields): void
+	{
+		$this->write($versionId, $lang, $fields);
+	}
+
+	/**
+	 * Writes the content fields of an existing version
+	 *
+	 * @param array<string, string> $fields Content fields
+	 *
+	 * @throws \Kirby\Exception\NotFoundException If the version does not exist
+	 */
+	protected function write(VersionId $versionId, Language $lang, array $fields): void
+	{
+		$success = Data::write($this->file($versionId, $lang), $this->normalize($versionId, $lang, $fields));
+
+		// @codeCoverageIgnoreStart
+		if ($success !== true) {
+			throw new Exception('Could not write the content file');
+		}
+		// @codeCoverageIgnoreEnd
+	}
+
 }
