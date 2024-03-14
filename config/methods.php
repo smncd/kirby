@@ -69,14 +69,14 @@ return function (App $app) {
 			try {
 				$blocks = Blocks::parse($field->value());
 				$blocks = Blocks::factory($blocks, [
-					'parent' => $field->parent(),
+					'parent' => $field->model(),
 					'field'  => $field,
 				]);
 				return $blocks->filter('isHidden', false);
 			} catch (Throwable) {
 				$message = 'Invalid blocks data for "' . $field->key() . '" field';
 
-				if ($parent = $field->parent()) {
+				if ($parent = $field->model()) {
 					$message .= ' on parent "' . $parent->title() . '"';
 				}
 
@@ -144,11 +144,11 @@ return function (App $app) {
 			Field $field,
 			string $separator = 'yaml'
 		): Files {
-			$parent = $field->parent();
-			$files  = new Files([]);
+			$model = $field->model();
+			$files = new Files([]);
 
 			foreach ($field->toData($separator) as $id) {
-				if (is_string($id) === true && $file = $parent->kirby()->file($id, $parent)) {
+				if (is_string($id) === true && $file = $model->kirby()->file($id, $model)) {
 					$files->add($file);
 				}
 			}
@@ -181,7 +181,7 @@ return function (App $app) {
 		 */
 		'toLayouts' => function (Field $field): Layouts {
 			return Layouts::factory(Layouts::parse($field->value()), [
-				'parent' => $field->parent(),
+				'parent' => $field->model(),
 				'field'  => $field,
 			]);
 		},
@@ -201,11 +201,11 @@ return function (App $app) {
 				$href = $attr1;
 				$attr = $attr2;
 			} else {
-				$href = $field->parent()->url();
+				$href = $field->model()->url();
 				$attr = $attr1;
 			}
 
-			if ($field->parent()->isActive()) {
+			if ($field->model()->isActive()) {
 				$attr['aria-current'] = 'page';
 			}
 
@@ -217,7 +217,12 @@ return function (App $app) {
 		 * content object
 		 */
 		'toObject' => function (Field $field): Content {
-			return new Content($field->yaml(), $field->parent(), true);
+			return new Content(
+				model:     $field->model(),
+				language:  $field->content()->language(),
+				data:      $field->yaml(),
+				normalize: true
+			);
 		},
 
 		/**
@@ -257,12 +262,12 @@ return function (App $app) {
 			try {
 				return Structure::factory(
 					Data::decode($field->value, 'yaml'),
-					['parent' => $field->parent(), 'field' => $field]
+					['parent' => $field->model(), 'field' => $field]
 				);
 			} catch (Exception) {
 				$message = 'Invalid structure data for "' . $field->key() . '" field';
 
-				if ($parent = $field->parent()) {
+				if ($parent = $field->model()) {
 					$message .= ' on parent "' . $parent->id() . '"';
 				}
 
@@ -397,7 +402,7 @@ return function (App $app) {
 			array $options = []
 		) use ($app): Field {
 			$field->value = $app->kirbytext($field->value, A::merge($options, [
-				'parent' => $field->parent(),
+				'parent' => $field->model(),
 				'field'  => $field
 			]));
 
@@ -414,7 +419,7 @@ return function (App $app) {
 			array $options = []
 		) use ($app): Field {
 			$field->value = $app->kirbytext($field->value, A::merge($options, [
-				'parent'   => $field->parent(),
+				'parent'   => $field->model(),
 				'field'    => $field,
 				'markdown' => [
 					'inline' => true
@@ -429,7 +434,7 @@ return function (App $app) {
 		 */
 		'kirbytags' => function (Field $field) use ($app): Field {
 			$field->value = $app->kirbytags($field->value, [
-				'parent' => $field->parent(),
+				'parent' => $field->model(),
 				'field'  => $field
 			]);
 
@@ -506,8 +511,8 @@ return function (App $app) {
 			Field $field,
 			string $expect = null
 		) use ($app): mixed {
-			if ($parent = $field->parent()) {
-				return $parent->query($field->value, $expect);
+			if ($model = $field->model()) {
+				return $model->query($field->value, $expect);
 			}
 
 			return Str::query($field->value, [
@@ -527,9 +532,9 @@ return function (App $app) {
 			array $data = [],
 			string|null $fallback = ''
 		) use ($app): Field {
-			if ($parent = $field->parent()) {
+			if ($model = $field->model()) {
 				// never pass `null` as the $template to avoid the fallback to the model ID
-				$field->value = $parent->toString($field->value ?? '', $data, $fallback);
+				$field->value = $model->toString($field->value ?? '', $data, $fallback);
 			} else {
 				$field->value = Str::template($field->value, array_replace([
 					'kirby' => $app,

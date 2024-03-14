@@ -3,6 +3,7 @@
 namespace Kirby\Content;
 
 use Closure;
+use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
 
 /**
@@ -33,38 +34,18 @@ class Field
 	public static array $aliases = [];
 
 	/**
-	 * The field name
-	 */
-	protected string $key;
-
-	/**
 	 * Registered field methods
 	 */
 	public static array $methods = [];
 
 	/**
-	 * The parent object if available.
-	 * This will be the page, site, user or file
-	 * to which the content belongs
-	 */
-	protected ModelWithContent|null $parent;
-
-	/**
-	 * The value of the field
-	 */
-	public mixed $value;
-
-	/**
 	 * Creates a new field object
 	 */
 	public function __construct(
-		ModelWithContent|null $parent,
-		string $key,
-		mixed $value
+		protected Content $content,
+		protected string $key,
+		public mixed $value
 	) {
-		$this->key    = $key;
-		$this->value  = $value;
-		$this->parent = $parent;
 	}
 
 	/**
@@ -112,11 +93,21 @@ class Field
 	}
 
 	/**
+	 * Returns the parent content object
+	 *
+	 * @return Content
+	 */
+	public function content(): Content
+	{
+		return $this->content;
+	}
+
+	/**
 	 * Checks if the field exists in the content data array
 	 */
 	public function exists(): bool
 	{
-		return $this->parent->content()->has($this->key);
+		return $this->content->has($this->key);
 	}
 
 	/**
@@ -146,11 +137,19 @@ class Field
 	}
 
 	/**
-	 * @see Field::parent()
+	 * Returns the parent language
 	 */
-	public function model(): ModelWithContent|null
+	public function language(): Language
 	{
-		return $this->parent;
+		return $this->content->language();
+	}
+
+	/**
+	 * Returns the parent model
+	 */
+	public function model(): ModelWithContent
+	{
+		return $this->content->model();
 	}
 
 	/**
@@ -175,10 +174,12 @@ class Field
 
 	/**
 	 * Returns the parent object of the field
+     *
+     * @deprecated Use ::model instead
 	 */
-	public function parent(): ModelWithContent|null
+	public function parent(): ModelWithContent
 	{
-		return $this->parent;
+		return $this->model();
 	}
 
 	/**
