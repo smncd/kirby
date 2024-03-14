@@ -13,9 +13,9 @@ class Version
 	) {
 	}
 
-	public function content(Language $language): ModelContent
+	public function content(Language $language): Content
 	{
-		return new ModelContent(
+		return new Content(
 			model:    $this->model,
 			language: $language,
 			data:     $this->model->storage()->read($this->id, $language),

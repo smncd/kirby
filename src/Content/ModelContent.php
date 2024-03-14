@@ -17,23 +17,6 @@ use Kirby\Form\Form;
 class ModelContent extends Content
 {
 	/**
-	 * Creates a new Content object
-	 *
-	 * @param bool $normalize Set to `false` if the input field keys are already lowercase
-	 */
-	public function __construct(
-		protected ModelWithContent $model,
-		protected Language $language,
-		array $data = [],
-		bool $normalize = true
-	) {
-		parent::__construct(
-			data: $data,
-			normalize: $normalize
-		);
-	}
-
-	/**
 	 * Converts the content to a new blueprint
 	 */
 	public function convertTo(string $to): array
@@ -80,49 +63,5 @@ class ModelContent extends Content
 
 		// preserve existing fields
 		return array_merge($this->data, $data);
-	}
-
-	/**
-	 * Returns either a single field object
-	 * or all registered fields
-	 */
-	public function get(string $key = null): Field|array
-	{
-		if ($key === null) {
-			return $this->fields();
-		}
-
-		$key = strtolower($key);
-
-		return $this->fields[$key] ??= new Field(
-			$this->model,
-			$key,
-			$this->data()[$key] ?? null
-		);
-	}
-
-	public function language(): Language
-	{
-		return $this->language;
-	}
-
-	/**
-	 * Returns the parent
-	 * Site, Page, File or User object
-	 */
-	public function model(): ModelWithContent
-	{
-		return $this->model;
-	}
-
-	/**
-	 * Set the parent model
-	 *
-	 * @return $this
-	 */
-	public function setModel(ModelWithContent $model): static
-	{
-		$this->model = $model;
-		return $this;
 	}
 }

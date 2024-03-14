@@ -2,6 +2,9 @@
 
 namespace Kirby\Content;
 
+use Kirby\Cms\Language;
+use Kirby\Cms\ModelWithContent;
+
 /**
  * The Content class handles all fields
  * for content from pages, the site and users
@@ -14,11 +17,6 @@ namespace Kirby\Content;
  */
 class Content
 {
-	/**
-	 * The raw data array
-	 */
-	protected array $data = [];
-
 	/**
 	 * Cached field objects
 	 * Once a field is being fetched
@@ -41,7 +39,9 @@ class Content
 	 * @param bool $normalize Set to `false` if the input field keys are already lowercase
 	 */
 	public function __construct(
-		array $data = [],
+		protected ModelWithContent $model,
+		protected Language $language,
+		protected array $data = [],
 		bool $normalize = true
 	) {
 		if ($normalize === true) {
@@ -95,9 +95,9 @@ class Content
 		$key = strtolower($key);
 
 		return $this->fields[$key] ??= new Field(
-			null,
-			$key,
-			$this->data()[$key] ?? null
+			content: $this,
+			key:     $key,
+			value:   $this->data()[$key] ?? null
 		);
 	}
 
@@ -115,6 +115,23 @@ class Content
 	public function keys(): array
 	{
 		return array_keys($this->data());
+	}
+
+	/**
+	 * Returns the content language object
+	 */
+	public function language(): Language
+	{
+		return $this->language;
+	}
+
+	/**
+	 * Returns the parent
+	 * Site, Page, File or User object
+	 */
+	public function model(): ModelWithContent
+	{
+		return $this->model;
 	}
 
 	/**
