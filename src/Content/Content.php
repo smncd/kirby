@@ -2,10 +2,6 @@
 
 namespace Kirby\Content;
 
-use Kirby\Cms\Blueprint;
-use Kirby\Cms\ModelWithContent;
-use Kirby\Form\Form;
-
 /**
  * The Content class handles all fields
  * for content from pages, the site and users
@@ -32,14 +28,6 @@ class Content
 	protected array $fields = [];
 
 	/**
-	 * A potential parent object.
-	 * Not necessarily needed. Especially
-	 * for testing, but field methods might
-	 * need it.
-	 */
-	protected ModelWithContent|null $parent;
-
-	/**
 	 * Magic getter for content fields
 	 */
 	public function __call(string $name, array $arguments = []): Field
@@ -54,15 +42,13 @@ class Content
 	 */
 	public function __construct(
 		array $data = [],
-		ModelWithContent $parent = null,
 		bool $normalize = true
 	) {
 		if ($normalize === true) {
 			$data = array_change_key_case($data, CASE_LOWER);
 		}
 
-		$this->data   = $data;
-		$this->parent = $parent;
+		$this->data = $data;
 	}
 
 	/**
@@ -75,55 +61,6 @@ class Content
 	public function __debugInfo(): array
 	{
 		return $this->toArray();
-	}
-
-	/**
-	 * Converts the content to a new blueprint
-	 */
-	public function convertTo(string $to): array
-	{
-		// prepare data
-		$data    = [];
-		$content = $this;
-
-		// blueprints
-		$old       = $this->parent->blueprint();
-		$subfolder = dirname($old->name());
-		$new       = Blueprint::factory(
-			$subfolder . '/' . $to,
-			$subfolder . '/default',
-			$this->parent
-		);
-
-		// forms
-		$oldForm = new Form([
-			'fields' => $old->fields(),
-			'model'  => $this->parent
-		]);
-		$newForm = new Form([
-			'fields' => $new->fields(),
-			'model'  => $this->parent
-		]);
-
-		// fields
-		$oldFields = $oldForm->fields();
-		$newFields = $newForm->fields();
-
-		// go through all fields of new template
-		foreach ($newFields as $newField) {
-			$name     = $newField->name();
-			$oldField = $oldFields->get($name);
-
-			// field name and type matches with old template
-			if ($oldField?->type() === $newField->type()) {
-				$data[$name] = $content->get($name)->value();
-			} else {
-				$data[$name] = $newField->default();
-			}
-		}
-
-		// preserve existing fields
-		return array_merge($this->data, $data);
 	}
 
 	/**
@@ -158,7 +95,7 @@ class Content
 		$key = strtolower($key);
 
 		return $this->fields[$key] ??= new Field(
-			$this->parent,
+			null,
 			$key,
 			$this->data()[$key] ?? null
 		);
@@ -195,26 +132,6 @@ class Content
 		}
 
 		return $copy;
-	}
-
-	/**
-	 * Returns the parent
-	 * Site, Page, File or User object
-	 */
-	public function parent(): ModelWithContent|null
-	{
-		return $this->parent;
-	}
-
-	/**
-	 * Set the parent model
-	 *
-	 * @return $this
-	 */
-	public function setParent(ModelWithContent $parent): static
-	{
-		$this->parent = $parent;
-		return $this;
 	}
 
 	/**
