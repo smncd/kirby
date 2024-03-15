@@ -3,6 +3,7 @@
 namespace Kirby\Cms;
 
 use Kirby\Cms\System\UpdateStatus;
+use Kirby\Content\VersionId;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\PermissionException;
 use Kirby\Filesystem\Dir;
@@ -75,9 +76,9 @@ class System
 
 		switch ($folder) {
 			case 'content':
-				return $url . '/' . basename($this->app->site()->storage()->contentFile(
-					'published',
-					'default'
+				return $url . '/' . basename($this->app->site()->storage()->file(
+					VersionId::PUBLISHED,
+					$this->app->language('default')
 				));
 			case 'git':
 				return $url . '/config';
