@@ -391,7 +391,7 @@ abstract class ModelWithContent implements Identifiable
 	 * @internal
 	 */
 	public function save(
-		array|null $data = null,
+		array $data = [],
 		string|null $languageCode = null,
 		bool $overwrite = false
 	): static {
@@ -399,10 +399,10 @@ abstract class ModelWithContent implements Identifiable
 		$clone = $this->clone();
 
 		// merge the new data with the existing content
-		$clone->content()->update($data, $overwrite);
+		$content = $clone->content()->update($data, $overwrite);
 
 		// send the full content array to the writer
-		$clone->writeContent($clone->content()->toArray(), $languageCode);
+		$clone->writeContent($content->toArray(), $languageCode);
 
 		return $clone;
 	}
