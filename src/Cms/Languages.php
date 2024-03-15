@@ -89,6 +89,10 @@ class Languages extends Collection
 			}
 		}
 
+		if (count($languages) === 0) {
+			$languages[] = new SingleLanguage();
+		}
+
 		return new static($languages);
 	}
 }
