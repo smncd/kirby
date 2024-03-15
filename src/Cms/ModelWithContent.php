@@ -127,7 +127,7 @@ abstract class ModelWithContent implements Identifiable
 	 */
 	public function content(string|null $languageCode = null): Content
 	{
-		return $this->version(VersionId::PUBLISHED)->content(Language::fromCode($languageCode));
+		return $this->version(VersionId::PUBLISHED)->content($this->kirby()->language($languageCode));
 	}
 
 	/**
@@ -371,7 +371,7 @@ abstract class ModelWithContent implements Identifiable
 		try {
 			return $this->storage()->read(
 				VersionId::PUBLISHED,
-				Language::fromCode($languageCode)
+				$this->kirby()->language($languageCode)
 			);
 		} catch (NotFoundException) {
 			// only if the content really does not exist, it's ok
@@ -618,7 +618,7 @@ abstract class ModelWithContent implements Identifiable
 	 */
 	public function writeContent(array $data, string $languageCode = null): bool
 	{
-		$language = Language::fromCode($languageCode);
+		$language = $this->kirby()->language($languageCode);
 
 		try {
 			// we can only update if the version already exists

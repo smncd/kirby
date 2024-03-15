@@ -178,7 +178,7 @@ class User extends ModelWithContent
 	 */
 	public function exists(): bool
 	{
-		return $this->storage()->exists(VersionId::PUBLISHED, Language::fromCode('default'));
+		return $this->storage()->exists(VersionId::PUBLISHED, $this->kirby()->language('default'));
 	}
 
 	/**
@@ -440,7 +440,7 @@ class User extends ModelWithContent
 		string|null $handler = null,
 		string|null $languageCode = null
 	): int|string|false {
-		$modifiedContent = $this->storage()->modified('published', $languageCode);
+		$modifiedContent = parent::modified();
 		$modifiedIndex   = F::modified($this->root() . '/index.php');
 		$modifiedTotal   = max([$modifiedContent, $modifiedIndex]);
 
@@ -453,10 +453,12 @@ class User extends ModelWithContent
 	public function name(): Field
 	{
 		if (is_string($this->name) === true) {
-			return new Field($this, 'name', $this->name);
+			return $this->content()->name()->value($this->name);
 		}
 
-		return $this->name ??= new Field($this, 'name', $this->credentials()['name'] ?? null);
+		return $this->name ??= $this->content()->name()->value(
+			$this->credentials()['name'] ?? null
+		);
 	}
 
 	/**
