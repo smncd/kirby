@@ -36,8 +36,9 @@ class StructureObject extends Item
 		parent::__construct($params);
 
 		$this->content = new Content(
-			$params['content'] ?? $params['params'] ?? [],
-			$this->parent
+			model:    $this->parent,
+			language: $params['field']->language(),
+			data:     $params['content'] ?? $params['params'] ?? [],
 		);
 	}
 

@@ -78,7 +78,11 @@ class Block extends Item
 		$this->type     = $params['type'];
 
 		// create the content object
-		$this->content = new Content($params['content'], $this->parent);
+		$this->content = new Content(
+			model:    $this->parent,
+			language: $params['field']->language(),
+			data:     $params['content'],
+		);
 	}
 
 	/**

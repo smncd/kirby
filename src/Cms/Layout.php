@@ -50,7 +50,11 @@ class Layout extends Item
 		]);
 
 		// create the attrs object
-		$this->attrs = new Content($params['attrs'] ?? [], $this->parent);
+		$this->attrs = new Content(
+			model:    $this->parent,
+			language: $params['field']->language(),
+			data:     $params['attrs'] ?? [],
+		);
 	}
 
 	/**
