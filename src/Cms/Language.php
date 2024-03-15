@@ -262,7 +262,11 @@ class Language
 			return new SingleLanguage();
 		}
 
-		return $kirby->language($code ?? 'default');
+		return match($code ?? 'current') {
+			'default' => $kirby->defaultLanguage(),
+			'current' => $kirby->language(),
+			default   => $kirby->language($code)
+		};
 	}
 
 	/**
