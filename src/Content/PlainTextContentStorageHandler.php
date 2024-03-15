@@ -238,13 +238,13 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 
 		$fields = match(true) {
 			$this->model instanceof File
-				=> $this->normalizeFileFields($this->model, $field),
+				=> $this->normalizeFileFields($this->model, $fields),
 			$this->model instanceof Page
-				=> $this->normalizePageFields($this->model, $field),
+				=> $this->normalizePageFields($this->model, $fields),
 			$this->model instanceof Site
-				=> $this->normalizeSiteFields($this->model, $field),
+				=> $this->normalizeSiteFields($this->model, $fields),
 			$this->model instanceof User
-				=> $this->normalizeUserFields($this->model, $field),
+				=> $this->normalizeUserFields($this->model, $fields),
 		};
 
 		return $fields;
