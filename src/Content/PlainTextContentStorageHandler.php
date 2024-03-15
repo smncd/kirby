@@ -2,11 +2,11 @@
 
 namespace Kirby\Content;
 
+use Kirby\Cms\App;
 use Kirby\Cms\File;
 use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
 use Kirby\Cms\Page;
-use Kirby\Cms\SingleLanguage;
 use Kirby\Cms\Site;
 use Kirby\Cms\User;
 use Kirby\Data\Data;
@@ -76,6 +76,25 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 	}
 
 	/**
+	 * Creates the absolute directory path for the model
+	 */
+	public static function directory(ModelWithContent $model, VersionId $versionId): string
+	{
+		$directory = match (true) {
+			$model instanceof File
+				=> dirname($model->root()),
+			default
+				=> $model->root()
+		};
+
+		if ($versionId === VersionId::CHANGES) {
+			$directory .= '/_changes';
+		}
+
+		return $directory;
+	}
+
+	/**
 	 * Checks if a version exists
 	 */
 	public function exists(VersionId $versionId, Language $lang): bool
@@ -90,41 +109,52 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 	 */
 	protected function file(VersionId $versionId, Language $lang): string
 	{
-		$extension = $this->model->kirby()->contentExtension();
-		$directory = $this->model->root();
-
-		$directory = match ($this->model::CLASS_ALIAS) {
-			'file'  => dirname($this->model->root()),
-			default => $this->model->root()
-		};
-
-		$filename = match ($this->model::CLASS_ALIAS) {
-			'file'  => $this->model->filename(),
-			'page'  => $this->model->intendedTemplate()->name(),
-			'site',
-			'user'  => $this->model::CLASS_ALIAS,
+		// get the filename without extension and language code
+		return match (true) {
+			$this->model instanceof File => $this->fileForFile($this->model, $versionId, $lang),
+			$this->model instanceof Page => $this->fileForPage($this->model, $versionId, $lang),
+			$this->model instanceof Site => $this->fileForSite($this->model, $versionId, $lang),
+			$this->model instanceof User => $this->fileForUser($this->model, $versionId, $lang),
 			// @codeCoverageIgnoreStart
-			default => throw new LogicException('Cannot determine content filename for model type "' . $this->model::CLASS_ALIAS . '"')
+			default => throw new LogicException('Cannot determine content file for model type "' . $this->model::CLASS_ALIAS . '"')
 			// @codeCoverageIgnoreEnd
 		};
+	}
 
-		if ($this->model::CLASS_ALIAS === 'page' && $this->model->isDraft() === true) {
-			// changes versions don't need anything extra
-			// (drafts already have the `_drafts` prefix in their root),
-			// but a published version is not possible
-			if ($versionId === VersionId::PUBLISHED) {
-				throw new LogicException('Drafts cannot have a published content file');
-			}
-		} elseif ($versionId === VersionId::CHANGES) {
-			// other model type or published page that has a changes subfolder
-			$directory .= '/_changes';
+	public static function fileForFile(File $model, VersionId $versionId, Language $language): string
+	{
+		return static::directory($model, $versionId) . '/' . static::filename($model->filename(), $language);
+	}
+
+	public static function fileForPage(Page $model, VersionId $versionId, Language $language): string
+	{
+		if ($model->isDraft() === true && $versionId === VersionId::CHANGES) {
+			throw new LogicException('Drafts cannot have a changes file');
 		}
 
-		if ($lang instanceof SingleLanguage) {
-			return $directory . '/' . $filename . '.' . $extension;
+		return static::directory($model, $versionId) . '/' . static::filename($model->intendedTemplate()->name(), $language);
+	}
+
+	public static function fileForSite(Site $model, VersionId $versionId, Language $language): string
+	{
+		return static::directory($model, $versionId) . '/' . static::filename('site', $language);
+	}
+
+	public static function fileForUser(User $model, VersionId $versionId, Language $language): string
+	{
+		return static::directory($model, $versionId) . '/' . static::filename('user', $language);
+	}
+
+	public static function filename(string $name, Language $language): string
+	{
+		$kirby     = App::instance();
+		$extension = $kirby->contentExtension();
+
+		if ($kirby->multilang() === true) {
+			return $name . '.' . $language->code() . '.' . $extension;
 		}
 
-		return $directory . '/' . $filename . '.' . $lang->code() . '.' . $extension;
+		return $name . '.' . $extension;
 	}
 
 	/**
@@ -219,7 +249,7 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 		return $fields;
 	}
 
-	protected function normalizeFileFields(File $model, array $fields): array
+	public static function normalizeFileFields(File $model, array $fields): array
 	{
 		// only add the template in, if the $data array
 		// doesn't explicitly unsets it
@@ -233,7 +263,7 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 		return $fields;
 	}
 
-	protected function normalizePageFields(Page $model, array $fields): array
+	public static function normalizePageFields(Page $model, array $fields): array
 	{
 		return A::prepend($fields, [
 			'title' => $fields['title'] ?? null,
@@ -241,7 +271,7 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 		]);
 	}
 
-	protected function normalizeSiteFields(Site $model, array $fields): array
+	public static function normalizeSiteFields(Site $model, array $fields): array
 	{
 		// always put the title first
 		return A::prepend($fields, [
@@ -249,7 +279,7 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 		]);
 	}
 
-	protected function normalizeUserFields(User $model, array $fields): array
+	public static function normalizeUserFields(User $model, array $fields): array
 	{
 		// remove stuff that has nothing to do in the text files
 		unset(
