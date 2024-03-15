@@ -5,6 +5,7 @@ namespace Kirby\Cms;
 use Closure;
 use Exception;
 use Kirby\Content\Field;
+use Kirby\Content\VersionId;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
 use Kirby\Exception\PermissionException;
@@ -159,41 +160,6 @@ class User extends ModelWithContent
 		}
 	}
 
-	/**
-	 * Prepares the content for the write method
-	 * @internal
-	 * @param string $languageCode|null Not used so far
-	 */
-	public function contentFileData(
-		array $data,
-		string|null $languageCode = null
-	): array {
-		// remove stuff that has nothing to do in the text files
-		unset(
-			$data['email'],
-			$data['language'],
-			$data['name'],
-			$data['password'],
-			$data['role']
-		);
-
-		return $data;
-	}
-
-	/**
-	 * Filename for the content file
-	 *
-	 * @internal
-	 * @deprecated 4.0.0
-	 * @todo Remove in v5
-	 * @codeCoverageIgnore
-	 */
-	public function contentFileName(): string
-	{
-		Helpers::deprecated('The internal $model->contentFileName() method has been deprecated. Please let us know via a GitHub issue if you need this method and tell us your use case.', 'model-content-file');
-		return 'user';
-	}
-
 	protected function credentials(): array
 	{
 		return $this->credentials ??= $this->readCredentials();
@@ -208,14 +174,11 @@ class User extends ModelWithContent
 	}
 
 	/**
-	 * Checks if the user exists
+	 * Checks if the model exists
 	 */
 	public function exists(): bool
 	{
-		return $this->storage()->exists(
-			'published',
-			'default'
-		);
+		return $this->storage()->exists(VersionId::PUBLISHED, Language::fromCode('default'));
 	}
 
 	/**

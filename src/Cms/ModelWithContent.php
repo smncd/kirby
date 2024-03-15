@@ -131,18 +131,6 @@ abstract class ModelWithContent implements Identifiable
 	}
 
 	/**
-	 * Prepares the content that should be written
-	 * to the text file
-	 * @internal
-	 */
-	public function contentFileData(
-		array $data,
-		string $languageCode = null
-	): array {
-		return $data;
-	}
-
-	/**
 	 * Converts model to new blueprint
 	 * incl. its content for all translations
 	 */
@@ -630,7 +618,6 @@ abstract class ModelWithContent implements Identifiable
 	 */
 	public function writeContent(array $data, string $languageCode = null): bool
 	{
-		$data     = $this->contentFileData($data, $languageCode);
 		$language = Language::fromCode($languageCode);
 
 		try {
