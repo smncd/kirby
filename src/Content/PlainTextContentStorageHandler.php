@@ -50,8 +50,8 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 	 */
 	public function delete(VersionId $versionId, Language $lang): void
 	{
-		$contentFile = $this->file($versionId, $lang);
-		$success = F::unlink($contentFile);
+		$file    = $this->file($versionId, $lang);
+		$success = F::unlink($file);
 
 		// @codeCoverageIgnoreStart
 		if ($success !== true) {
@@ -60,12 +60,13 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 		// @codeCoverageIgnoreEnd
 
 		// clean up empty directories
-		$contentDir = dirname($contentFile);
+		$dir = dirname($file);
+
 		if (
-			Dir::exists($contentDir) === true &&
-			Dir::isEmpty($contentDir) === true
+			Dir::exists($dir) === true &&
+			Dir::isEmpty($dir) === true
 		) {
-			$success = rmdir($contentDir);
+			$success = rmdir($dir);
 
 			// @codeCoverageIgnoreStart
 			if ($success !== true) {
@@ -107,7 +108,7 @@ class PlainTextContentStorageHandler extends ContentStorageHandler
 	 *
 	 * @throws \Kirby\Exception\LogicException If the model type doesn't have a known content filename
 	 */
-	protected function file(VersionId $versionId, Language $lang): string
+	public function file(VersionId $versionId, Language $lang): string
 	{
 		// get the filename without extension and language code
 		return match (true) {
