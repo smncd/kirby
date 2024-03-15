@@ -168,7 +168,7 @@ class Content
 	 * @return $this
 	 */
 	public function update(
-		array $content = null,
+		array $content = [],
 		bool $overwrite = false
 	): static {
 		$content = array_change_key_case((array)$content, CASE_LOWER);
