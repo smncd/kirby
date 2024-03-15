@@ -567,7 +567,7 @@ abstract class ModelWithContent implements Identifiable
 	 */
 	public function update(
 		array $input = null,
-		string $languageCode = null,
+		string|null $languageCode = null,
 		bool $validate = false
 	): static {
 		$form = Form::for($this, [
