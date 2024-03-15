@@ -16,9 +16,12 @@ class SingleLanguage extends Language
 	protected string $code = '';
 	protected bool $default = true;
 	protected string $direction = 'ltr';
+	protected array $locale = [];
+	protected string $name = '';
 	protected array $slugs = [];
 	protected array $smartypants = [];
 	protected array $translations = [];
+	protected string|null $url = null;
 
 	public function __construct()
 	{
