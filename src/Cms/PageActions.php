@@ -956,7 +956,7 @@ trait PageActions
 	 * Updates the page data
 	 */
 	public function update(
-		array|null $input = null,
+		array $input = [],
 		string|null $languageCode = null,
 		bool $validate = false
 	): static {

@@ -566,7 +566,7 @@ abstract class ModelWithContent implements Identifiable
 	 * @throws \Kirby\Exception\InvalidArgumentException If the input array contains invalid values
 	 */
 	public function update(
-		array $input = null,
+		array $input = [],
 		string|null $languageCode = null,
 		bool $validate = false
 	): static {
