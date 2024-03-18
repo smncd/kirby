@@ -4,6 +4,7 @@ namespace Kirby\Content;
 
 use Kirby\Cms\Language;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Form\Form;
 
 class Version
 {
@@ -24,7 +25,12 @@ class Version
 
 	public function create(Language $language, array $fields): void
 	{
-		$this->model->storage()->create($this->id, $language, $fields);
+		$form = Form::for($this->model, [
+			'input'    => $fields,
+			'language' => $language->code(),
+		]);
+
+		$this->model->storage()->create($this->id, $language, $form->strings());
 	}
 
 	public function delete(Language $language): void
@@ -64,6 +70,16 @@ class Version
 
 	public function update(Language $language, array $fields): void
 	{
-		$this->model->storage()->update($this->id, $language, $fields);
+		$form = Form::for($this->model, [
+			'input'    => $fields,
+			'language' => $language->code(),
+		]);
+
+		$content = $this->content($language);
+
+		// merge the new data with the existing content
+		$content->update($form->strings());
+
+		$this->model->storage()->update($this->id, $language, $content->toArray());
 	}
 }

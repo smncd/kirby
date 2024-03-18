@@ -5,6 +5,7 @@ namespace Kirby\Panel;
 use Closure;
 use Kirby\Cms\File as CmsFile;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Content\VersionId;
 use Kirby\Filesystem\Asset;
 use Kirby\Form\Form;
 use Kirby\Http\Uri;
@@ -32,7 +33,21 @@ abstract class Model
 	 */
 	public function content(): array
 	{
-		return Form::for($this->model)->values();
+		$language = $this->model->kirby()->language('current');
+
+		if ($this->model->version(VersionId::CHANGES)->exists($language)) {
+			$content = $this->model->version(VersionId::CHANGES)->read($language);
+		} else {
+			$content = $this->model->version(VersionId::PUBLISHED)->read($language);
+		}
+
+		$form = new Form([
+			'model'  => $this->model,
+			'fields' => $this->model->blueprint()->fields(),
+			'values' => $content
+		]);
+
+		return $form->values();
 	}
 
 	/**
