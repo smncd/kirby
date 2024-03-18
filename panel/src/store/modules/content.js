@@ -314,7 +314,7 @@ export default {
 
 			// Send updated values to API
 			try {
-				await window.panel.api.patch(model.api, data);
+				await window.panel.post(model.api, data);
 
 				// re-create model with updated values as originals
 				context.commit("CREATE", [

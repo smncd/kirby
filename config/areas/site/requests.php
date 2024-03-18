@@ -2,9 +2,42 @@
 
 use Kirby\Cms\App;
 use Kirby\Cms\Find;
+use Kirby\Content\VersionId;
 use Kirby\Toolkit\I18n;
 
 return [
+	'page.save' => [
+		'pattern' => 'pages/(:any)',
+		'method'  => 'POST',
+		'action'  => function (string $path) {
+			$kirby    = App::instance();
+			$fields   = $kirby->request()->get();
+			$page     = Find::page($path);
+			$version  = $page->version(VersionId::CHANGES);
+			$language = $kirby->language('current');
+
+			if ($version->exists($language) === false) {
+				$published = $page->version(VersionId::PUBLISHED)->read($language);
+
+				$version->create(
+					language: $language,
+					fields: [
+						...$published,
+						...$fields,
+					]
+				);
+			} else {
+				$version->update(
+					language: $language,
+					fields: $fields,
+				);
+			}
+
+			return [
+				'status' => 'ok'
+			];
+		}
+	],
 	'tree' => [
 		'pattern' => 'site/tree',
 		'action'  => function () {
