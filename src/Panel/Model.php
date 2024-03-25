@@ -370,6 +370,7 @@ abstract class Model
 			'lock'        => $this->lock(),
 			'permissions' => $this->model->permissions()->toArray(),
 			'tabs'        => $tabs,
+			'changes'     => $this->model->version(VersionId::CHANGES)->exists($this->model->kirby()->language('current'))
 		];
 
 		// only send the tab if it exists

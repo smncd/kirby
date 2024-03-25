@@ -48,7 +48,7 @@
 					<k-languages-dropdown />
 
 					<k-button
-						v-if="status"
+						v-if="status && !hasChanges"
 						v-bind="statusBtn"
 						class="k-page-view-status"
 						variant="filled"
@@ -56,7 +56,39 @@
 					/>
 				</k-button-group>
 
-				<k-form-buttons :lock="lock" />
+				<template v-if="hasChanges === true">
+					<k-button-group layout="collapsed">
+						<k-button
+							icon="edit"
+							size="sm"
+							theme="notice"
+							text="Publish changes"
+							variant="filled"
+							@click="publish"
+						/>
+						<k-button
+							icon="dots"
+							size="sm"
+							theme="notice"
+							variant="filled"
+							@click="$refs.changes.toggle()"
+						/>
+					</k-button-group>
+					<k-dropdown-content ref="changes" align-x="right">
+						<k-dropdown-item
+							:link="model.previewUrl + '?changes=true'"
+							icon="open"
+							target="_blank"
+						>
+							Preview changes
+						</k-dropdown-item>
+						<k-dropdown-item icon="preview">Compare changes</k-dropdown-item>
+						<hr />
+						<k-dropdown-item icon="undo" @click="revert">
+							Revert Changes
+						</k-dropdown-item>
+					</k-dropdown-content>
+				</template>
 			</template>
 		</k-header>
 
@@ -64,10 +96,13 @@
 
 		<k-sections
 			:blueprint="blueprint"
+			:content="content"
 			:empty="$t('page.blueprint', { blueprint: $esc(blueprint) })"
 			:lock="lock"
 			:parent="id"
 			:tab="tab"
+			@input="onInput"
+			@submit="onSubmit"
 		/>
 	</k-panel-inside>
 </template>

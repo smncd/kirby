@@ -331,8 +331,8 @@ class Page extends Model
 			$this->prevNext(),
 			[
 				'blueprint' => $page->intendedTemplate()->name(),
+				'content'   => $this->content(),
 				'model' => [
-					'content'    => $this->content(),
 					'id'         => $page->id(),
 					'link'       => $this->url(true),
 					'parent'     => $page->parentModel()->panel()->url(true),

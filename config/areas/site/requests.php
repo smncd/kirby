@@ -6,8 +6,22 @@ use Kirby\Content\VersionId;
 use Kirby\Toolkit\I18n;
 
 return [
+	'page.revert' => [
+		'pattern' => 'pages/(:any)/revert',
+		'method'  => 'POST',
+		'action'  => function (string $path) {
+			$kirby    = App::instance();
+			$language = $kirby->language('current');
+
+			Find::page($path)->version(VersionId::CHANGES)->delete($language);
+
+			return [
+				'status' => 'ok'
+			];
+		}
+	],
 	'page.save' => [
-		'pattern' => 'pages/(:any)',
+		'pattern' => 'pages/(:any)/save',
 		'method'  => 'POST',
 		'action'  => function (string $path) {
 			$kirby    = App::instance();
@@ -32,6 +46,25 @@ return [
 					fields: $fields,
 				);
 			}
+
+			return [
+				'status' => 'ok'
+			];
+		}
+	],
+	'page.publish' => [
+		'pattern' => 'pages/(:any)/publish',
+		'method'  => 'POST',
+		'action'  => function (string $path) {
+			$kirby    = App::instance();
+			$page     = Find::page($path);
+			$language = $kirby->language('current');
+			$changes  = $page->version(VersionId::CHANGES);
+			$fields   = $kirby->request()->get();
+
+			$page->version(VersionId::PUBLISHED)->update($language, $fields);
+
+			$changes->delete($language);
 
 			return [
 				'status' => 'ok'

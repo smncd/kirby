@@ -14,7 +14,7 @@
 		<k-form
 			:fields="fields"
 			:validate="true"
-			:value="values"
+			:value="content"
 			:disabled="lock && lock.state === 'lock'"
 			@input="onInput"
 			@submit="onSubmit"
@@ -29,17 +29,15 @@ import debounce from "@/helpers/debounce.js";
 export default {
 	mixins: [SectionMixin],
 	inheritAttrs: false,
+	props: {
+		content: Object
+	},
 	data() {
 		return {
 			fields: {},
 			isLoading: true,
 			issue: null
 		};
-	},
-	computed: {
-		values() {
-			return this.$store.getters["content/values"]();
-		}
 	},
 	watch: {
 		// Reload values and field definitions
@@ -49,7 +47,7 @@ export default {
 		}
 	},
 	mounted() {
-		this.onInput = debounce(this.onInput, 50);
+		// this.onInput = debounce(this.onInput, 50);
 		this.fetch();
 	},
 	methods: {
@@ -73,12 +71,14 @@ export default {
 			}
 		},
 		onInput(values, field, fieldName) {
-			this.$store.dispatch("content/update", [fieldName, values[fieldName]]);
+			this.$emit("input", fieldName, values[fieldName]);
+			// this.$store.dispatch("content/update", [fieldName, values[fieldName]]);
 		},
 		onSubmit(values) {
-			// ensure that all values are actually committed to content store
-			this.$store.dispatch("content/update", [null, values]);
-			this.$events.emit("keydown.cmd.s", values);
+			this.$emit("submit");
+			// // ensure that all values are actually committed to content store
+			// this.$store.dispatch("content/update", [null, values]);
+			// this.$events.emit("keydown.cmd.s", values);
 		}
 	}
 };

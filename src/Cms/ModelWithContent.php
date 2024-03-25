@@ -127,7 +127,17 @@ abstract class ModelWithContent implements Identifiable
 	 */
 	public function content(string|null $languageCode = null): Content
 	{
-		return $this->version(VersionId::PUBLISHED)->content($this->kirby()->language($languageCode));
+		$language = $this->kirby()->language($languageCode);
+
+		if (get('changes') === 'true') {
+			$changes = $this->version(VersionId::CHANGES);
+
+			if ($changes->exists($language) === true) {
+				return $changes->content($language);
+			}
+		}
+
+		return $this->version(VersionId::PUBLISHED)->content($language);
 	}
 
 	/**
