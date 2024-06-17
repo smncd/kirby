@@ -77,35 +77,16 @@ abstract class ModelUuid extends Uuid
 	protected function storeId(string $id): void
 	{
 		// get the content array from the page
-		$data = $this->model->content('default')->toArray();
-
-		// check for an empty content array
-		// and read content from file again,
-		// just to be sure we don't lose content
-		if (empty($data) === true) {
-			usleep(1000);
-			$data = $this->model->readContent('default');
-		}
+		$data = $this->model->version()->read('default');
 
 		// add the UUID to the content array
 		if (empty($data['uuid']) === true) {
 			$data['uuid'] = $id;
 		}
 
-		// overwrite the content in memory for the current request
-		if ($this->model->kirby()->multilang() === true) {
-			// update the default translation instead of the content object
-			// (the default content object is always freshly loaded from the
-			// default translation afterwards, so updating the default
-			// content object would not have any effect)
-			$this->model->translation('default')->update($data);
-		} else {
-			$this->model->content('default')->update($data);
-		}
-
 		// overwrite the content in the file;
 		// use the most basic write method to avoid object cloning
-		$this->model->writeContent($data, 'default');
+		$this->model->version()->save($data, 'default');
 	}
 
 	/**
