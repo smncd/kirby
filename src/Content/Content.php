@@ -4,6 +4,7 @@ namespace Kirby\Content;
 
 use Kirby\Cms\Blueprint;
 use Kirby\Cms\ModelWithContent;
+use Kirby\Exception\LogicException;
 use Kirby\Form\Form;
 
 /**
@@ -225,27 +226,5 @@ class Content
 	public function toArray(): array
 	{
 		return $this->data();
-	}
-
-	/**
-	 * Updates the content and returns
-	 * a cloned object
-	 *
-	 * @return $this
-	 */
-	public function update(
-		array|null $content = null,
-		bool $overwrite = false
-	): static {
-		$content    = array_change_key_case((array)$content, CASE_LOWER);
-		$this->data = match($overwrite) {
-			true  => $content,
-			false => [...$this->data, ...$content]
-		};
-
-		// clear cache of Field objects
-		$this->fields = [];
-
-		return $this;
 	}
 }
