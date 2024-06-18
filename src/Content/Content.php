@@ -227,4 +227,13 @@ class Content
 	{
 		return $this->data();
 	}
+
+	/**
+	 * @deprecated since 5.0.0
+	 */
+	public function update(): void
+	{
+		throw new LogicException('This method is deprecated and can no longer be used.');
+	}
+
 }

@@ -4,6 +4,7 @@ namespace Kirby\Content;
 
 use Kirby\Cms\App;
 use Kirby\Cms\Page;
+use Kirby\Exception\LogicException;
 use Kirby\TestCase;
 
 /**
@@ -251,28 +252,11 @@ class ContentTest extends TestCase
 	 */
 	public function testUpdate()
 	{
+		$this->expectException(LogicException::class);
+		$this->expectExceptionMessage('This method is deprecated and can no longer be used.');
+
 		$this->content->update([
 			'a' => 'aaa'
 		]);
-		$this->assertSame('aaa', $this->content->get('a')->value());
-
-		$this->content->update([
-			'miXED' => 'mixed!'
-		]);
-		$this->assertSame('mixed!', $this->content->get('mixed')->value());
-
-		// Field objects should be cleared on update
-		$this->content->update([
-			'a' => 'aaaaaa'
-		]);
-		$this->assertSame('aaaaaa', $this->content->get('a')->value());
-
-		$this->content->update($expected = [
-			'TEST' => 'TEST'
-		], true);
-		$this->assertSame(['test' => 'TEST'], $this->content->data());
-
-		$this->content->update(null, true);
-		$this->assertSame([], $this->content->data());
 	}
 }
