@@ -353,7 +353,7 @@ class ModelWithContentTest extends TestCase
 			'languages' => [
 				[
 					'code' => 'en',
-					'default' => true
+					'default' => true,
 				],
 				[
 					'code' => 'de',
@@ -363,18 +363,19 @@ class ModelWithContentTest extends TestCase
 
 		$app->setCurrentLanguage('de');
 
-		$en = $app->page('foo')->translation('en');
+		$page = $app->page('foo');
 
-		$this->assertSame('English Title', $en->content()['title']);
+		$en = $page->translation('en');
+		$this->assertSame('English Title', $en->version()->content('en')->toArray()['title']);
 
 		$de = $app->page('foo')->translation('de');
-		$this->assertSame('Deutscher Titel', $de->content()['title']);
+		$this->assertSame('Deutscher Titel', $de->version()->content('de')->toArray()['title']);
 
 		$default = $app->page('foo')->translation('default');
-		$this->assertSame('English Title', $default->content()['title']);
+		$this->assertSame('English Title', $default->version()->content('default')->toArray()['title']);
 
-		$current = $app->page('foo')->translation();
-		$this->assertSame('Deutscher Titel', $current->content()['title']);
+		$current = $app->page('foo')->translation('current');
+		$this->assertSame('Deutscher Titel', $current->version()->content('current')->toArray()['title']);
 	}
 
 	public function testTranslationWithInvalidLanguauge()
