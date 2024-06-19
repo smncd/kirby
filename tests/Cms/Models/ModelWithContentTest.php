@@ -5,7 +5,6 @@ namespace Kirby\Cms;
 use Closure;
 use Kirby\Content\Version;
 use Kirby\Content\VersionId;
-use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\NotFoundException;
 use Kirby\Panel\Page as PanelPage;
 use Kirby\Uuid\PageUuid;

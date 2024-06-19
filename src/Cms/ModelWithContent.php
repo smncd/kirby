@@ -389,15 +389,14 @@ abstract class ModelWithContent implements Identifiable, Stringable
 	abstract public function root(): string|null;
 
 	/**
-	 * @deprecated since 5.0.0 Use `::version()->save()` instead
+	 * Stores the content on disk
+	 * @internal
 	 */
 	public function save(
 		array|null $data = null,
 		string|null $languageCode = null,
 		bool $overwrite = false
 	): static {
-		Helpers::deprecated('`$model->save()` has been deprecated. Use `$model->version()->save()` instead.', 'model-save');
-
 		$clone = $this->clone();
 		$clone->version()->save($data ?? [], $languageCode ?? 'current', $overwrite);
 		return $clone;
