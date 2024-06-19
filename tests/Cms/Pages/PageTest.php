@@ -1077,7 +1077,14 @@ class PageTest extends TestCase
 
 		$expected = [
 			'content' => [],
-			'translations' => [],
+			'translations' => [
+				'en' => [
+					'code' => 'en',
+					'content' => [],
+					'exists' => false,
+					'slug' => null
+				]
+			],
 			'children' => [],
 			'files' => [],
 			'id' => 'test',
