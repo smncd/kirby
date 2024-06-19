@@ -533,8 +533,10 @@ trait PageActions
 			]
 		);
 
-		// inject the content
-		$page = $page->clone(['content' => $form->strings(true)]);
+		// create a virtual page object to be used in the hook
+		$page = $page->clone([
+			'content' => $fields = $form->strings(true)
+		]);
 
 		// run the hooks and creation action
 		$page = $page->commit(
@@ -543,9 +545,15 @@ trait PageActions
 				'page'  => $page,
 				'input' => $props
 			],
-			function ($page, $props) use ($languageCode) {
+			function () use ($languageCode, $fields, $props) {
+				// create a fresh page object from scratch
+				$page = Page::factory([
+					...$props,
+					'content' => null
+				]);
+
 				// write the content file
-				$page = $page->save($page->content()->toArray(), $languageCode);
+				$page = $page->save($fields, $languageCode);
 
 				// flush the parent cache to get children and drafts right
 				static::updateParentCollections($page, 'append');
