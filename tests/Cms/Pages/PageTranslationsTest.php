@@ -249,35 +249,33 @@ class PageTranslationsTest extends TestCase
 		$app->impersonate('kirby');
 
 		$en = $page->update([
-			'a' => 'A',
-			'b' => 'B',
+			'a'           => 'A',
+			'b'           => 'B',
 			'capitalized' => 'C',
-			'dDdDdD' => 'D'
+			'dDdDdD'      => 'D'
 		]);
 
 		$expected = [
-			'a' => 'A',
-			'b' => 'B',
+			'a'           => 'A',
+			'b'           => 'B',
 			'capitalized' => 'C',
-			'dddddd' => 'D'
+			'dddddd'      => 'D'
 		];
 
-		$this->assertSame($expected, $en->content('en')->data());
+		$this->assertSame($expected, $en->version()->read('en'));
 
 		$de = $page->update([
-			'a' => 'A',
-			'b' => 'B',
+			'a'           => 'A',
+			'b'           => 'B',
 			'capitalized' => 'C',
-			'dDdDdD' => 'D'
+			'dDdDdD'      => 'D'
 		], 'de');
 
 		$expected = [
-			'a' => 'A',
-			'b' => null,
-			'capitalized' => null,
+			'a'      => 'A',
 			'dddddd' => 'D'
 		];
 
-		$this->assertSame($expected, $de->content('de')->data());
+		$this->assertSame($expected, $de->version()->read('de'));
 	}
 }
