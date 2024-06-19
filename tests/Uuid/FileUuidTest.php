@@ -200,16 +200,10 @@ class FileUuidTest extends TestCase
 		// the uuid must match between languages
 		$this->assertTrue($file->content('en')->get('uuid')->value() === $file->content('de')->get('uuid')->value());
 
-		// the translation for the default language must be updated
-		$this->assertSame($file->translation('en')->content()['uuid'], $file->uuid()->id());
-
-		// the translation for the secondary language must inherit the UUID
-		$this->assertSame($file->translation('de')->content()['uuid'], $file->uuid()->id());
-
 		// the uuid must be stored in the primary language file
-		$this->assertSame($file->readContent('en')['uuid'], $file->uuid()->id());
+		$this->assertSame($file->version()->read('en')['uuid'], $file->uuid()->id());
 
 		// the secondary language must not have the uuid in the content file
-		$this->assertNull($file->readContent('de')['uuid'] ?? null);
+		$this->assertNull($file->version()->read('de')['uuid'] ?? null);
 	}
 }
