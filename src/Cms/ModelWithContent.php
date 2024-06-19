@@ -113,8 +113,7 @@ abstract class ModelWithContent implements Identifiable, Stringable
 		// before creating the clone. The storage of the clone can
 		// afterwards be mutated without affecting the content in the
 		// original instance.
-		$this->storage = MemoryContentStorageHandler::from($this->storage);
-
+		$this->storage = MemoryContentStorageHandler::from($this->storage());
 		return new static(array_replace_recursive($this->propertyData, $props));
 	}
 
