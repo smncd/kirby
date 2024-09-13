@@ -82,7 +82,7 @@ class LanguageVariable
 		foreach ($this->kirby->languages() as $language) {
 			$translations = $language->translations();
 			$translations->remove($this->key);
-			$language->update(['translations' => $translations]);
+			$language->update(['translations' => $translations->toArray()]);
 		}
 
 		return true;
@@ -113,7 +113,7 @@ class LanguageVariable
 		$translations = $this->language->translations();
 		$translations->set($this->key, $value);
 
-		$language = $this->language->update(['translations' => $translations]);
+		$language = $this->language->update(['translations' => $translations->toArray()]);
 
 		return $language->variable($this->key);
 	}

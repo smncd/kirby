@@ -237,6 +237,9 @@ class Language implements Stringable
 			throw new Exception(message: 'The language could not be deleted');
 		}
 
+		// delete custom translations file if defined
+		$language->translations()->delete();
+
 		// if needed, convert content storage to single lang
 		foreach ($kirby->models() as $model) {
 			if ($language->isLast() === true) {
@@ -584,15 +587,6 @@ class Language implements Stringable
 		// make sure the slug is nice and clean
 		$props['slug'] = Str::slug($props['slug'] ?? null);
 
-		$kirby   = App::instance();
-		$updated = $this->clone($props);
-
-		if (isset($props['translations']) === true) {
-			$updated->translations = new LanguageTranslations($updated, $props['translations']);
-		}
-
-		// validate the updated language
-		LanguageRules::update($updated);
 
 		// trigger before hook
 		$language = $kirby->apply(
@@ -608,7 +602,7 @@ class Language implements Stringable
 		$language = $language->clone($props);
 
 		if (isset($props['translations']) === true) {
-			$language->translations = $props['translations'];
+			$language->translations = $language->translations->update($props['translations'] ?? null);
 		}
 
 		// validate the language rules after before hook was applied
