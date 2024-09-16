@@ -47,8 +47,8 @@ class Language implements Stringable
 	protected bool $single;
 	protected array $slugs;
 	protected array $smartypants;
-	protected LanguageTranslations $translations;
 	protected string|null $url;
+	protected LanguageVariables $variables;
 
 	/**
 	 * Creates a new language object
@@ -77,7 +77,7 @@ class Language implements Stringable
 			$this->locale = [LC_ALL => $this->code];
 		}
 
-		$this->translations = new LanguageTranslations($this, $props['translations'] ?? []);
+		$this->variables = new LanguageVariables($this, $props['translations'] ?? []);
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Language implements Stringable
 			'name'         => $this->name,
 			'slugs'        => $this->slugs,
 			'smartypants'  => $this->smartypants,
-			'translations' => $this->translations->toArray(),
+			'translations' => $this->variables->toArray(),
 			'url'          => $this->url,
 		], $props));
 	}
@@ -224,6 +224,7 @@ class Language implements Stringable
 		LanguageRules::delete($this);
 
 		// apply before hook
+		/** @var \Kirby\Cms\Language $language */
 		$language = $kirby->apply(
 			'language.delete:before',
 			['language' => $this],
@@ -238,7 +239,7 @@ class Language implements Stringable
 		}
 
 		// delete custom translations file if defined
-		$language->translations()->delete();
+		$language->variables()->delete();
 
 		// if needed, convert content storage to single lang
 		foreach ($kirby->models() as $model) {
@@ -483,7 +484,7 @@ class Language implements Stringable
 			'direction'    => $this->direction(),
 			'locale'       => Locale::export($this->locale()),
 			'name'         => $this->name(),
-			'translations' => $this->translations()->toArray(),
+			'translations' => $this->variables()->toArray(),
 			'url'          => $this->url,
 		];
 
@@ -491,8 +492,8 @@ class Language implements Stringable
 
 		// save translations to the custom root and remove translations
 		// to prevent duplication write into the language file
-		if ($this->translations()->root() !== null) {
-			$this->translations()->save($data['translations'] ?? []);
+		if ($this->variables()->root() !== null) {
+			$this->variables()->save($data['translations'] ?? []);
 			$data['translations'] = [];
 		}
 
@@ -556,11 +557,14 @@ class Language implements Stringable
 	}
 
 	/**
-	 * Returns the language translations object for this language
+	 * Alias for Language::variables()
+	 *
+	 * @deprecated 5.0.0 Use `::variables()` instead
+	 * @todo 7.0.0 Remove the method
 	 */
-	public function translations(): LanguageTranslations
+	public function translations(): LanguageVariables
 	{
-		return $this->translations;
+		return $this->variables();
 	}
 
 	/**
@@ -589,6 +593,7 @@ class Language implements Stringable
 
 
 		// trigger before hook
+		/** @var \Kirby\Cms\Language $language */
 		$language = $kirby->apply(
 			'language.update:before',
 			[
@@ -602,7 +607,7 @@ class Language implements Stringable
 		$language = $language->clone($props);
 
 		if (isset($props['translations']) === true) {
-			$language->translations = $language->translations->update($props['translations'] ?? null);
+			$language->variables = $language->variables->update($props['translations'] ?? null);
 		}
 
 		// validate the language rules after before hook was applied
@@ -651,5 +656,13 @@ class Language implements Stringable
 		}
 
 		return new LanguageVariable($this, $key);
+	}
+
+	/**
+	 * Returns the language variables object for this language
+	 */
+	public function variables(): LanguageVariables
+	{
+		return $this->variables;
 	}
 }
