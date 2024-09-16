@@ -12,7 +12,7 @@
 			variant="filled"
 		/>
 		<k-dropdown-content
-			v-if="lock.isActive"
+			v-if="lock?.isActive"
 			ref="lock"
 			align-x="end"
 			class="k-form-controls-dropdown"
@@ -28,11 +28,13 @@
 				</div>
 				<div>
 					<dt><k-icon type="clock" /></dt>
-					<dd>12 minutes ago</dd>
+					<dd>{{ lock.modified }}</dd>
 				</div>
 			</dl>
 			<hr />
-			<k-dropdown-item icon="preview">Preview changes</k-dropdown-item>
+			<k-dropdown-item :link="preview" icon="preview" target="_blank">
+				{{ $t("form.preview") }}
+			</k-dropdown-item>
 		</k-dropdown-content>
 	</k-button-group>
 </template>
@@ -53,7 +55,11 @@ export default {
 		/**
 		 * Whether the content is locked, and if, by whom
 		 */
-		lock: Object
+		lock: Object,
+		/**
+		 * Preview URL for changes
+		 */
+		preview: String
 	},
 	emits: ["discard", "submit"],
 	computed: {

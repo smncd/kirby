@@ -16,7 +16,7 @@
 
 					<k-form-controls
 						:changes="changes"
-						:lock="lock"
+						:lock="isLocked ? lock : {}"
 						preview="https://getkirby.com"
 						@discard="log('discard')"
 						@submit="log('submit')"
@@ -61,7 +61,8 @@
 		</k-lab-example>
 		<k-lab-example label="Locked">
 			<k-form-controls
-				:lock="{ isActive: true, user: { email: 'test@getkirby.com' } }"
+				:lock="lock"
+				preview="https://getkirby.com"
 				@discard="log('discard')"
 				@submit="log('submit')"
 			/>
@@ -89,19 +90,13 @@ export default {
 			return {};
 		},
 		lock() {
-			const lock = {
-				isActive: false,
+			return {
+				isActive: true,
+				modified: "5 minutes ago",
 				user: {
-					email: null
+					email: "test@getkirby.com"
 				}
 			};
-
-			if (this.isLocked) {
-				lock.isActive = true;
-				lock.user.email = "test@getkirby.com";
-			}
-
-			return lock;
 		}
 	},
 	methods: {
