@@ -39,11 +39,20 @@ export default {
 		changes() {
 			return this.$panel.content.changes;
 		},
+		editor() {
+			return this.lock.user.email;
+		},
 		id() {
 			return this.model.link;
 		},
 		isLocked() {
 			return this.lock.isActive === true;
+		},
+		isUnsaved() {
+			return this.$helper.object.length(this.changes) > 0;
+		},
+		modified() {
+			return this.lock.modified;
 		},
 		protectedFields() {
 			return [];

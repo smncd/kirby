@@ -15,8 +15,10 @@
 					/>
 
 					<k-form-controls
-						:changes="changes"
-						:lock="isLocked ? lock : {}"
+						:is-unsaved="isUnsaved"
+						:is-locked="isLocked"
+						editor="editor@getkirby.com"
+						modified="5 minutes ago"
 						preview="https://getkirby.com"
 						@discard="log('discard')"
 						@submit="log('submit')"
@@ -34,19 +36,19 @@
 				<k-input
 					type="toggle"
 					:value="isDraft"
-					text="draft"
+					text="is-draft"
 					@input="isDraft = $event"
 				/>
 				<k-input
 					type="toggle"
-					:value="isChanged"
-					text="changes"
-					@input="isChanged = $event"
+					:value="isUnsaved"
+					text="is-unsaved"
+					@input="isUnsaved = $event"
 				/>
 				<k-input
 					type="toggle"
 					:value="isLocked"
-					text="lock"
+					text="is-locked"
 					@input="isLocked = $event"
 				/>
 			</k-grid>
@@ -54,14 +56,16 @@
 
 		<k-lab-example label="Unsaved">
 			<k-form-controls
-				:changes="{ heading: 'This has changed' }"
+				:is-unsaved="true"
 				@discard="log('discard')"
 				@submit="log('submit')"
 			/>
 		</k-lab-example>
 		<k-lab-example label="Locked">
 			<k-form-controls
-				:lock="lock"
+				:is-locked="true"
+				editor="editor@getkirby.com"
+				modified="5 minutes ago"
 				preview="https://getkirby.com"
 				@discard="log('discard')"
 				@submit="log('submit')"
@@ -76,28 +80,8 @@ export default {
 		return {
 			isDraft: false,
 			isLocked: false,
-			isChanged: false
+			isUnsaved: false
 		};
-	},
-	computed: {
-		changes() {
-			if (this.isChanged) {
-				return {
-					heading: "This has changed"
-				};
-			}
-
-			return {};
-		},
-		lock() {
-			return {
-				isActive: true,
-				modified: "5 minutes ago",
-				user: {
-					email: "test@getkirby.com"
-				}
-			};
-		}
 	},
 	methods: {
 		log(action) {

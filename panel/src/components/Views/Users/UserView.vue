@@ -28,8 +28,11 @@
 			<template #buttons>
 				<k-view-buttons :buttons="buttons" />
 				<k-form-controls
-					:changes="changes"
-					:lock="lock"
+					:editor="editor"
+					:is-locked="isLocked"
+					:is-unsaved="isUnsaved"
+					:modified="modified"
+					:preview="preview"
 					@discard="onDiscard"
 					@submit="onSubmit"
 				/>

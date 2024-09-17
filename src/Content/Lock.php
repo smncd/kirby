@@ -24,29 +24,28 @@ class Lock
 		$changes = $this->model->version(VersionId::changes());
 
 		// the model is not locked if no changes exist
-		if ($changes->exists() === false) {
-			return;
+		if ($changes->exists() === true) {
+			// get the editing user
+			if ($userId = ($changes->read()['lock'] ?? null)) {
+				$this->user = App::instance()->user($userId);
+			}
+
+			// get last modification time
+			$this->modified = $changes->modified();
 		}
 
-		// get the editing user
-		if ($userId = ($changes->read()['lock'] ?? null)) {
-			$this->user = App::instance()->user($userId);
-		}
+		// set the current user as the lock user
+ 		$this->user ??= App::instance()->user();
 
-		// get last modification time
-		$this->modified = $changes->modified();
-
-		// the model is not locked if no user could be found
-		if ($this->user === null) {
-			return;
-		}
+		// set the current time as modification timestamp
+ 		$this->modified ??= time();
 
 		// the model is not locked if the editing user is the currently logged in user
 		if ($this->user->is($this->authenticated) === true) {
-			return;
+			$this->isActive = false;
+		} else {
+			$this->isActive = true;
 		}
-
-		$this->isActive = true;
 	}
 
 	public function isActive(): bool

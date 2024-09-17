@@ -12,7 +12,7 @@
 			variant="filled"
 		/>
 		<k-dropdown-content
-			v-if="lock?.isActive"
+			v-if="isLocked"
 			ref="lock"
 			align-x="end"
 			class="k-form-controls-dropdown"
@@ -24,11 +24,11 @@
 			<dl>
 				<div>
 					<dt><k-icon type="user" /></dt>
-					<dd>{{ lock.user.email }}</dd>
+					<dd>{{ editor }}</dd>
 				</div>
 				<div>
 					<dt><k-icon type="clock" /></dt>
-					<dd>{{ lock.modified }}</dd>
+					<dd>{{ modified }}</dd>
 				</div>
 			</dl>
 			<hr />
@@ -40,22 +40,16 @@
 </template>
 
 <script>
-import { length } from "@/helpers/object.js";
-
 /**
  * @displayName FormControls
  * @since 5.0.0
  */
 export default {
 	props: {
-		/**
-		 * An object of changed fields and their changed values
-		 */
-		changes: Object,
-		/**
-		 * Whether the content is locked, and if, by whom
-		 */
-		lock: Object,
+		editor: String,
+		isLocked: Boolean,
+		isUnsaved: Boolean,
+		modified: String,
 		/**
 		 * Preview URL for changes
 		 */
@@ -64,19 +58,19 @@ export default {
 	emits: ["discard", "submit"],
 	computed: {
 		buttons() {
-			if (this.lock?.isActive === true) {
+			if (this.isLocked === true) {
 				return [
 					{
 						theme: "negative",
 						dropdown: true,
-						text: this.lock.user.email,
+						text: this.editor,
 						icon: "lock",
 						click: () => this.$refs.lock.toggle()
 					}
 				];
 			}
 
-			if (length(this.changes) !== 0) {
+			if (this.isUnsaved === true) {
 				return [
 					{
 						theme: "notice",
