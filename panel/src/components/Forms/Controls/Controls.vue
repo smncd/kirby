@@ -74,7 +74,7 @@ export default {
 				return [
 					{
 						theme: "notice",
-						text: this.$t("revert"),
+						text: this.$t("discard"),
 						icon: "undo",
 						click: () => this.discard()
 					},
@@ -97,6 +97,7 @@ export default {
 				props: {
 					size: "medium",
 					submitButton: {
+						theme: "notice",
 						icon: "undo",
 						text: this.$t("form.discard")
 					},
