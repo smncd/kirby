@@ -10,8 +10,8 @@
 						:icon="isDraft ? 'circle' : 'circle-filled'"
 						size="sm"
 						variant="filled"
-						:text="isDraft ? 'Draft' : 'Public'"
-						:theme="isDraft ? 'negative-icon' : 'positive-icon'"
+						text="Public"
+						theme="positive-icon"
 					/>
 
 					<k-form-controls
@@ -28,17 +28,11 @@
 
 			<k-grid
 				style="
-					--columns: 3;
+					--columns: 2;
 					--grid-inline-gap: var(--spacing-1);
 					--grid-block-gap: var(--spacing-1);
 				"
 			>
-				<k-input
-					type="toggle"
-					:value="isDraft"
-					text="is-draft"
-					@input="isDraft = $event"
-				/>
 				<k-input
 					type="toggle"
 					:value="isUnsaved"
@@ -78,7 +72,6 @@
 export default {
 	data() {
 		return {
-			isDraft: false,
 			isLocked: false,
 			isUnsaved: false
 		};
