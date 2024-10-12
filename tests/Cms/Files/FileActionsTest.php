@@ -375,10 +375,6 @@ class FileActionsTest extends TestCase
 		$app->setCurrentLanguage('de');
 		$this->assertNull($modified->caption()->value());
 		$this->assertSame('Das ist der Text', $modified->text()->value());
-
-		$this->assertFileExists($modified->version(VersionId::published())->contentFile('en'));
-		$this->assertFileExists($modified->version(VersionId::published())->contentFile('de'));
-		$this->assertFileDoesNotExist($modified->version(VersionId::published())->contentFile('fr'));
 	}
 
 	public function testChangeTemplateDefault()

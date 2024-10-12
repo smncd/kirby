@@ -145,31 +145,11 @@ abstract class ModelWithContent implements Identifiable, Stringable
 			}
 		}
 
-		// single language support
-		if ($this->kirby()->multilang() === false) {
+		if ($language->isDefault() === true) {
 			return $this->content ??= $this->version()->content($language);
 		}
 
-		// only fetch from cache for the current language
-		if ($languageCode === null && $this->content instanceof Content) {
-			return $this->content;
-		}
-
-		// get the translation by code
-		$translation = $this->translation($language->code());
-		$content     = new Content(
-			data: $translation->toArray()['content'],
-			parent: $this,
-			// already normalized by `Version` class
-			normalize: false
-		);
-
-		// only store the content for the current language
-		if ($languageCode === null) {
-			$this->content = $content;
-		}
-
-		return $content;
+		return $this->version()->content($language);
 	}
 
 	/**
@@ -190,50 +170,46 @@ abstract class ModelWithContent implements Identifiable, Stringable
 	 */
 	protected function convertTo(string $blueprint): static
 	{
-		// first close object with new blueprint as template
-		$new = $this->clone(['template' => $blueprint]);
+		// first clone object with new blueprint as template
+		$newModel = $this->clone(['template' => $blueprint]);
 
-		// temporary compatibility change (TODO: also convert changes)
-		$identifier = VersionId::published();
+		// Go through all versions and translations and
+		// convert the content for each of them
+		$translations = [];
 
-		// for multilang, we go through all translations and
-		// covnert the content for each of them, remove the content file
-		// to rewrite it with converted content afterwards
-		if ($this->kirby()->multilang() === true) {
-			$translations = [];
+		foreach (VersionId::all() as $versionId) {
+			$version = $this->version($versionId);
 
-			foreach ($this->kirby()->languages()->codes() as $code) {
-				if ($this->translation($code)?->exists() === true) {
-					$content = $this->content($code)->convertTo($blueprint);
+			foreach (Languages::ensure() as $language) {
+				if ($version->exists($language) === true) {
+					$content = $version->content($language);
+					$content = $content->convertTo($blueprint);
 
 					// delete the old text file
-					$this->version($identifier)->delete($code);
+					$version->delete($language);
 
-					// save to re-create the translation content file
+					// save to re-create the content file
 					// with the converted/updated content
-					$new->save($content, $code);
+					$newModel->save($content, $language, true);
+
+					if ($version->id()->is('published') === true) {
+						$translations[] = [
+							'code'    => $language->code(),
+							'content' => $content
+						];
+					}
 				}
-
-				$translations[] = [
-					'code'    => $code,
-					'content' => $content ?? null
-				];
 			}
-
-			// cloning the object with the new translations content ensures
-			// that `propertyData` prop does not hold any old translations
-			// content that could surface on subsequent cloning
-			return $new->clone(['translations' => $translations]);
 		}
 
-		// for single language setups, we do the same,
-		// just once for the main content
-		$content = $this->content()->convertTo($blueprint);
+		// cloning the object with the new translations content ensures
+		// that `propertyData` prop does not hold any old translations
+		// content that could surface on subsequent cloning
+		if ($this->kirby()->multilang() === true) {
+			return $newModel->clone(['translations' => $translations]);
+		}
 
-		// delete the old text file
-		$this->version($identifier)->delete('default');
-
-		return $new->save($content);
+		return $newModel;
 	}
 
 	/**
