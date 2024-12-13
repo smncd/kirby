@@ -11,9 +11,7 @@
 				:key="name"
 				style="--columns: 20; gap: var(--spacing-3)"
 			>
-				<k-box style="--span: 2">
-					{{ name }}
-				</k-box>
+				<k-box style="--span: 2"> {{ name }}- </k-box>
 				<k-box
 					v-for="(step, index) in steps"
 					:key="step"
@@ -47,8 +45,8 @@ export default {
 				400: 1000,
 				450: 1000,
 				500: 1000,
-				550: 1000,
-				600: 1000,
+				550: 100,
+				600: 100,
 				650: 100,
 				700: 100,
 				750: 100,
