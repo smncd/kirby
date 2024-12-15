@@ -8,6 +8,8 @@
 			<!-- Header row -->
 			<thead>
 				<tr>
+					<th data-mobile="true" class="k-table-sort-column"></th>
+
 					<th
 						v-if="hasIndexColumn"
 						data-mobile="true"
@@ -75,7 +77,15 @@
 							'k-table-sortable-row': sortable && row.sortable !== false
 						}"
 					>
-						<!-- Index & drag handle -->
+						<!-- Drag handle -->
+						<td class="k-table-sort-column">
+							<k-sort-handle
+								v-if="sortable && row.sortable !== false"
+								class="k-table-sort-handle"
+							/>
+						</td>
+
+						<!-- Index -->
 						<td
 							v-if="hasIndexColumn"
 							data-mobile="true"
@@ -90,11 +100,6 @@
 							>
 								<div class="k-table-index" v-text="index + rowIndex" />
 							</slot>
-
-							<k-sort-handle
-								v-if="sortable && row.sortable !== false"
-								class="k-table-sort-handle"
-							/>
 						</td>
 
 						<!-- Cell -->
@@ -477,6 +482,23 @@ export default {
 }
 
 /* Sortable tables */
+.k-table .k-table-sort-column {
+	overflow: auto;
+	position: relative;
+	width: 0;
+	padding: 0;
+}
+.k-table .k-table-sort-column .k-sort-handle {
+	position: absolute;
+	translate: -2rem;
+	left: 0;
+	top: 0;
+	opacity: 0;
+	width: 2rem;
+}
+.k-table .k-table-sortable-row:hover .k-sort-handle {
+	opacity: 1;
+}
 .k-table-row-ghost {
 	background: var(--table-color-back);
 	outline: var(--outline);
@@ -497,18 +519,6 @@ export default {
 	font-size: var(--text-xs);
 	color: var(--color-text-dimmed);
 	line-height: 1.1em;
-}
-
-/* Table Index with sort handle */
-.k-table .k-table-index-column .k-sort-handle {
-	--button-width: 100%;
-	display: none;
-}
-.k-table tr.k-table-sortable-row:hover .k-table-index-column .k-table-index {
-	display: none;
-}
-.k-table tr.k-table-sortable-row:hover .k-table-index-column .k-sort-handle {
-	display: flex;
 }
 
 /* Table Options */
