@@ -74,7 +74,7 @@ export default {
 	color: var(--color-gray-400);
 }
 .k-plugin-info dd[data-theme] {
-	color: var(--theme-color-600);
+	color: var(--theme-color-500);
 }
 
 @container (max-width: 30em) {
