@@ -680,7 +680,7 @@
 		var(--color-gray-850)
 	);
 	--color-dark: var(--color-gray-900);
-	--color-focus: var(--color-blue-500);
+	--color-focus: light-dark(var(--color-blue-500), var(--color-blue-600));
 	--color-light: var(--color-gray-200);
 	--color-text: light-dark(var(--color-black), var(--color-white));
 	--color-text-dimmed: light-dark(var(--color-gray-700), var(--color-gray-400));
