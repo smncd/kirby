@@ -106,7 +106,8 @@ export default {
 .k-box[data-theme] {
 	--box-color-back: var(--theme-color-back);
 	--box-color-text: var(--theme-color-text-highlight);
-	--box-color-icon: var(--theme-color-700);
+	--box-color-icon: var(--theme-color-icon-highlight);
+
 	min-height: var(--box-height);
 	line-height: 1.25;
 	padding: 0.375rem var(--box-padding-inline);
