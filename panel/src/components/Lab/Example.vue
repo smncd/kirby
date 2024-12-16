@@ -8,14 +8,14 @@
 				class="k-lab-example-inspector"
 			>
 				<k-button
-					:theme="mode === 'preview' ? 'info' : null"
+					:current="mode === 'preview'"
 					icon="preview"
 					size="xs"
 					title="Preview"
 					@click="mode = 'preview'"
 				/>
 				<k-button
-					:theme="mode === 'inspect' ? 'info' : null"
+					:current="mode === 'inspect'"
 					icon="code"
 					size="xs"
 					title="Vue code"
@@ -99,10 +99,7 @@ export default {
 	--icon-size: 13px;
 	--button-color-icon: var(--color-gray-500);
 }
-.k-lab-example-inspector .k-button:not([data-theme]):hover {
-	--button-color-icon: var(--color-gray-600);
-}
-.k-lab-example-inspector .k-button:where([data-theme]) {
-	--button-color-icon: var(--color-gray-800);
+.k-lab-example-inspector .k-button:where([aria-current="true"]) {
+	--button-color-icon: var(--color-text);
 }
 </style>
