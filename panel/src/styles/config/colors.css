@@ -212,7 +212,7 @@
 	);
 
 	/* yellow */
-	--color-yellow-h: 96;
+	--color-yellow-h: 98;
 
 	--color-yellow-c-100: calc(var(--color-c-100) + 0.02);
 	--color-yellow-c-150: calc(var(--color-c-150) + 0.02);
