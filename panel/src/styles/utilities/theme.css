@@ -1,6 +1,6 @@
 [data-theme] {
-	--theme-color-h: 0;
-	--theme-color-c: 0;
+	--theme-color-h: var(--color-gray-h);
+	--theme-color-c: var(--color-gray-c);
 
 	--theme-color-100: oklch(
 		var(--color-l-100) calc(var(--color-c-100) + var(--theme-color-c))
@@ -121,8 +121,6 @@
 
 [data-theme^="gray"],
 [data-theme^="passive"] {
-	--theme-color-h: var(--color-gray-h);
-	--theme-color-c: var(--color-gray-c);
 	--theme-color-icon: var(--color-gray-600);
 	--theme-color-text: var(--color-black);
 }
@@ -138,8 +136,6 @@
 
 /* Special Themes */
 [data-theme^="dark"] {
-	--theme-color-h: var(--color-gray-h);
-	--theme-color-c: var(--color-gray-c);
 	--theme-color-boost: var(--color-gray-boost);
 	--theme-color-back: var(--color-gray-800);
 	--theme-color-icon: var(--color-gray-500);
