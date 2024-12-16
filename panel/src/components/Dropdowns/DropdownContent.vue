@@ -344,7 +344,7 @@ export default {
 <style>
 :root {
 	--dropdown-color-bg: var(--color-gray-950);
-	--dropdown-color-current: var(--color-blue-500);
+	--dropdown-color-current: var(--color-blue-400);
 	--dropdown-color-hr: var(--color-gray-850);
 	--dropdown-color-text: var(--color-white);
 	--dropdown-padding: var(--spacing-2);

@@ -38,7 +38,7 @@
 	--color-c-950: 0.01;
 
 	--color-aqua-h: 198;
-	--color-blue-h: 255;
+	--color-blue-h: 260;
 	--color-green-h: 128;
 	--color-orange-h: 58;
 	--color-pink-h: 353;
@@ -47,7 +47,7 @@
 	--color-yellow-h: 96;
 
 	--color-aqua-c: -0.01;
-	--color-blue-c: 0.01;
+	--color-blue-c: 0;
 	--color-green-c: 0.03;
 	--color-orange-c: 0;
 	--color-pink-c: 0.03;
@@ -661,7 +661,7 @@
 		var(--color-gray-850)
 	);
 	--color-dark: var(--color-gray-900);
-	--color-focus: var(--color-blue-600);
+	--color-focus: var(--color-blue-500);
 	--color-light: var(--color-gray-200);
 	--color-text: light-dark(var(--color-black), var(--color-white));
 	--color-text-dimmed: light-dark(var(--color-gray-700), var(--color-gray-400));
