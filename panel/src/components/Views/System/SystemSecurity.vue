@@ -15,7 +15,7 @@
 				issues.map((issue) => ({
 					// give each message an image prop unless it already has one
 					image: {
-						back: 'light-dark(var(--color-red-200), var(--color-red-900))',
+						back: 'light-dark(var(--color-red-150), var(--color-red-950))',
 						icon: issue.icon ?? 'alert',
 						color: 'var(--color-red)'
 					},
