@@ -141,6 +141,14 @@ return [
 				$item['info'] = $model->toString($this->info);
 			}
 
+			if ($this->type === 'pages') {
+				$item['flag'] = [
+					'status'   => $model->status(),
+					'dialog'   => $model->panel()->url(true) . '/changeStatus',
+					'disabled' => $model->permissions()->cannot('changeStatus')
+				];
+			}
+
 			// if forcing raw values, get those directly from content file
 			// TODO: remove once Form classes have been refactored
 			// @codeCoverageIgnoreStart
