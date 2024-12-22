@@ -46,7 +46,7 @@ class Roles extends Collection
 					'role'  => $role->id()
 				]);
 
-				return $newUser->permissions()->can('changeRole');
+				return $newUser->permissions()->changeRole();
 			});
 		}
 
@@ -72,7 +72,7 @@ class Roles extends Collection
 					'role'  => $role->id()
 				]);
 
-				return $newUser->permissions()->can('create');
+				return $newUser->permissions()->create();
 			});
 		}
 

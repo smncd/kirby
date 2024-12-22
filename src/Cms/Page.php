@@ -527,7 +527,7 @@ class Page extends ModelWithContent
 		$template            = $this->intendedTemplate()->name();
 		$accessible[$role] ??= [];
 
-		return $accessible[$role][$template] ??= $this->permissions()->can('access');
+		return $accessible[$role][$template] ??= $this->permissions()->access();
 	}
 
 	/**
@@ -699,7 +699,7 @@ class Page extends ModelWithContent
 		$template          = $this->intendedTemplate()->name();
 		$listable[$role] ??= [];
 
-		return $listable[$role][$template] ??= $this->permissions()->can('list');
+		return $listable[$role][$template] ??= $this->permissions()->list();
 	}
 
 	/**
@@ -757,7 +757,7 @@ class Page extends ModelWithContent
 		$template          = $this->intendedTemplate()->name();
 		$readable[$role] ??= [];
 
-		return $readable[$role][$template] ??= $this->permissions()->can('read');
+		return $readable[$role][$template] ??= $this->permissions()->read();
 	}
 
 	/**
@@ -765,7 +765,7 @@ class Page extends ModelWithContent
 	 */
 	public function isSortable(): bool
 	{
-		return $this->permissions()->can('sort');
+		return $this->permissions()->sort();
 	}
 
 	/**

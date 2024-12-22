@@ -17,7 +17,7 @@ return [
 		);
 	},
 	'page.preview' => function (Page $page) {
-		if ($page->permissions()->can('preview') === true) {
+		if ($page->permissions()->preview() === true) {
 			return new PreviewDropdownButton(
 				open: $page->previewUrl(),
 				preview: $page->panel()->url(true) . '/preview/compare',

@@ -323,7 +323,7 @@ class File extends ModelWithContent
 		$template            = $this->template() ?? '__none__';
 		$accessible[$role] ??= [];
 
-		return $accessible[$role][$template] ??= $this->permissions()->can('access');
+		return $accessible[$role][$template] ??= $this->permissions()->access();
 	}
 
 	/**
@@ -347,7 +347,7 @@ class File extends ModelWithContent
 		$template          = $this->template() ?? '__none__';
 		$listable[$role] ??= [];
 
-		return $listable[$role][$template] ??= $this->permissions()->can('list');
+		return $listable[$role][$template] ??= $this->permissions()->list();
 	}
 
 	/**
@@ -362,7 +362,7 @@ class File extends ModelWithContent
 		$template          = $this->template() ?? '__none__';
 		$readable[$role] ??= [];
 
-		return $readable[$role][$template] ??= $this->permissions()->can('read');
+		return $readable[$role][$template] ??= $this->permissions()->read();
 	}
 
 	/**
