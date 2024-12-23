@@ -301,6 +301,14 @@ class Language implements Stringable
 	}
 
 	/**
+	 * Checks if the language is accessible to the current user
+	 */
+	public function isAccessible(): bool
+	{
+		return $this->permissions()->access();
+	}
+
+	/**
 	 * Checks if this is the default language
 	 * for the site.
 	 */
@@ -333,6 +341,19 @@ class Language implements Stringable
 	public function isLast(): bool
 	{
 		return App::instance()->languages()->count() === 1;
+	}
+
+	/**
+	 * Checks if the language is listable by the current user
+	 */
+	public function isListable(): bool
+	{
+		// not accessible also means not listable
+		if ($this->isAccessible() === false) {
+			return false;
+		}
+
+		return $this->permissions()->list();
 	}
 
 	/**

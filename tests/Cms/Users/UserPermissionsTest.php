@@ -9,13 +9,15 @@ class UserPermissionsTest extends TestCase
 	public static function actionProvider(): array
 	{
 		return [
-			['create'],
+			['access'],
 			['changeEmail'],
 			['changeLanguage'],
 			['changeName'],
 			['changePassword'],
 			['changeRole'],
+			['create'],
 			['delete'],
+			['list'],
 			['update'],
 		];
 	}
@@ -122,6 +124,40 @@ class UserPermissionsTest extends TestCase
 		$user2  = $app->user('editor2@getkirby.com');
 		$perms2 = $user2->permissions();
 		$this->assertTrue($perms2->can($action));
+	}
+
+	/**
+	 * @covers \Kirby\Cms\ModelPermissions::can
+	 */
+	public function testCaching()
+	{
+		$app = new App([
+			'roots' => [
+				'index' => '/dev/null'
+			],
+			'users' => [
+				['id' => 'bastian', 'role' => 'admin'],
+
+			]
+		]);
+
+		$app->impersonate('bastian');
+
+		$user = new User([
+			'role'      => 'editor',
+			'blueprint' => [
+				'name' => 'users/editor',
+				'options' => [
+					'access' => false,
+					'list'   => false
+				]
+			]
+		]);
+
+		$this->assertFalse($user->permissions()->can('access'));
+		$this->assertFalse($user->permissions()->can('access'));
+		$this->assertFalse($user->permissions()->can('list'));
+		$this->assertFalse($user->permissions()->can('list'));
 	}
 
 	public function testChangeSingleRole()

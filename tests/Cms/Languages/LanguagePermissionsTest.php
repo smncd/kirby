@@ -113,6 +113,47 @@ class LanguagePermissionsTest extends TestCase
 	}
 
 	/**
+	 * @covers \Kirby\Cms\ModelPermissions::can
+	 */
+	public function testCaching()
+	{
+		$app = new App([
+			'languages' => [
+				[
+					'code' => 'en'
+				]
+			],
+			'roles' => [
+				[
+					'name' => 'editor',
+					'permissions' => [
+						'languages' => [
+							'access' => false,
+							'list'   => false
+						],
+					]
+				]
+			],
+			'roots' => [
+				'index' => '/dev/null'
+			],
+			'users' => [
+				['id' => 'bastian', 'role' => 'editor'],
+
+			]
+		]);
+
+		$app->impersonate('bastian');
+
+		$language = $app->language('en');
+
+		$this->assertFalse($language->permissions()->can('access'));
+		$this->assertFalse($language->permissions()->can('access'));
+		$this->assertFalse($language->permissions()->can('list'));
+		$this->assertFalse($language->permissions()->can('list'));
+	}
+
+	/**
 	 * @covers ::canDelete
 	 */
 	public function testCanDeleteWhenNotDeletable()

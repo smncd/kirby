@@ -282,6 +282,14 @@ class User extends ModelWithContent
 	}
 
 	/**
+	 * Checks if the user is accessible to the current user
+	 */
+	public function isAccessible(): bool
+	{
+		return $this->permissions()->access();
+	}
+
+	/**
 	 * Checks if this user has the admin role
 	 */
 	public function isAdmin(): bool
@@ -296,6 +304,19 @@ class User extends ModelWithContent
 	public function isKirby(): bool
 	{
 		return $this->isAdmin() && $this->id() === 'kirby';
+	}
+
+	/**
+	 * Checks if the user is listable by the current user
+	 */
+	public function isListable(): bool
+	{
+		// not accessible also means not listable
+		if ($this->isAccessible() === false) {
+			return false;
+		}
+
+		return $this->permissions()->list();
 	}
 
 	/**
