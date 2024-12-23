@@ -318,12 +318,7 @@ class File extends ModelWithContent
 			return false;
 		}
 
-		static $accessible   = [];
-		$role                = $this->kirby()->role()?->id() ?? '__none__';
-		$template            = $this->template() ?? '__none__';
-		$accessible[$role] ??= [];
-
-		return $accessible[$role][$template] ??= $this->permissions()->access();
+		return $this->permissions()->access();
 	}
 
 	/**
@@ -342,12 +337,7 @@ class File extends ModelWithContent
 			return false;
 		}
 
-		static $listable   = [];
-		$role              = $this->kirby()->role()?->id() ?? '__none__';
-		$template          = $this->template() ?? '__none__';
-		$listable[$role] ??= [];
-
-		return $listable[$role][$template] ??= $this->permissions()->list();
+		return $this->permissions()->list();
 	}
 
 	/**

@@ -14,6 +14,9 @@ class FilePermissionsTest extends TestCase
 		$this->app = new App([
 			'roots' => [
 				'index' => '/dev/null'
+			],
+			'users' => [
+				['id' => 'bastian', 'role' => 'admin']
 			]
 		]);
 	}
@@ -58,6 +61,33 @@ class FilePermissionsTest extends TestCase
 		$perms = $file->permissions();
 
 		$this->assertFalse($perms->can($action));
+	}
+
+	/**
+	 * @covers \Kirby\Cms\ModelPermissions::can
+	 */
+	public function testCaching()
+	{
+		$this->app->impersonate('bastian');
+
+		$page = new Page(['slug' => 'test']);
+		$file = new File([
+			'filename'  => 'test.jpg',
+			'parent'    => $page,
+			'template'  => 'some-template',
+			'blueprint' => [
+				'name' => 'files/some-template',
+				'options' => [
+					'access' => false,
+					'list'   => false
+				]
+			]
+		]);
+
+		$this->assertFalse($file->permissions()->can('access'));
+		$this->assertFalse($file->permissions()->can('access'));
+		$this->assertFalse($file->permissions()->can('list'));
+		$this->assertFalse($file->permissions()->can('list'));
 	}
 
 	/**

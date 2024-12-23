@@ -271,6 +271,32 @@ class PagePermissionsTest extends TestCase
 	}
 
 	/**
+	 * @covers \Kirby\Cms\ModelPermissions::can
+	 */
+	public function testCaching()
+	{
+		$this->app->impersonate('bastian');
+
+		$page = new Page([
+			'slug'      => 'test',
+			'num'       => 1,
+			'template'  => 'some-template',
+			'blueprint' => [
+				'name' => 'some-template',
+				'options' => [
+					'access' => false,
+					'list'   => false
+				]
+			]
+		]);
+
+		$this->assertFalse($page->permissions()->can('access'));
+		$this->assertFalse($page->permissions()->can('access'));
+		$this->assertFalse($page->permissions()->can('list'));
+		$this->assertFalse($page->permissions()->can('list'));
+	}
+
+	/**
 	 * @covers ::canChangeTemplate
 	 */
 	public function testCannotChangeTemplate()

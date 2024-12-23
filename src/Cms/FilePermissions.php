@@ -15,6 +15,14 @@ class FilePermissions extends ModelPermissions
 {
 	protected string $category = 'files';
 
+	/**
+	 * Used to cache once determined permissions in memory
+	 */
+	protected function cacheKey(): string
+	{
+		return $this->model->template() ?? '__none__';
+	}
+
 	protected function canChangeTemplate(): bool
 	{
 		if (count($this->model->blueprints()) <= 1) {

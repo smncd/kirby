@@ -15,6 +15,14 @@ class PagePermissions extends ModelPermissions
 {
 	protected string $category = 'pages';
 
+	/**
+	 * Used to cache once determined permissions in memory
+	 */
+	protected function cacheKey(): string
+	{
+		return $this->model->intendedTemplate()->name();
+	}
+
 	protected function canChangeSlug(): bool
 	{
 		return $this->model->isHomeOrErrorPage() !== true;
