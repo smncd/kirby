@@ -18,7 +18,7 @@ use Kirby\Image\Focus;
 */
 class ImageMagick extends Darkroom
 {
-	protected function autoOrient(Imagick $image): void
+	protected function autoOrient(Imagick $image): Imagick
 	{
 		switch ($image->getImageOrientation()) {
 			case Imagick::ORIENTATION_TOPLEFT:
@@ -52,6 +52,7 @@ class ImageMagick extends Darkroom
 		}
 
 		$image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
+		return $image;
 	}
 
 	/**
@@ -92,11 +93,13 @@ class ImageMagick extends Darkroom
 	/**
 	 * Applies the correct settings for grayscale images
 	 */
-	protected function grayscale(Imagick $image, array $options): void
+	protected function grayscale(Imagick $image, array $options): Imagick
 	{
 		if ($options['grayscale'] === true) {
 			$image->setColorspace(Imagick::COLORSPACE_GRAY);
 		}
+
+		return $image;
 	}
 
 	/**
@@ -116,11 +119,13 @@ class ImageMagick extends Darkroom
 	 * Applies the correct settings for interlaced JPEGs if
 	 * activated via options
 	 */
-	protected function interlace(Imagick $image, array $options): void
+	protected function interlace(Imagick $image, array $options): Imagick
 	{
 		if ($options['interlace'] === true) {
 			$image->setInterlaceScheme(Imagick::INTERLACE_LINE);
 		}
+
+		return $image;
 	}
 
 	/**
@@ -131,20 +136,19 @@ class ImageMagick extends Darkroom
 	 */
 	public function process(string $file, array $options = []): array
 	{
-		$options = $this->preprocess($file, $options);
-		$image   = new Imagick($file);
-
+		$options  = $this->preprocess($file, $options);
+		$image    = new Imagick($file);
 		$profiles = $image->getImageProfiles('icc', true);
 
-		$this->threads($image, $options);
+		$image = $this->threads($image, $options);
 		$image->stripImage();
-		$this->interlace($image, $options);
+		$image = $this->interlace($image, $options);
 
 		$image = $this->coalesce($image);
-		$this->grayscale($image, $options);
-		$this->autoOrient($image);
-		$this->resize($image, $options);
-		$this->quality($image, $options);
+		$image = $this->grayscale($image, $options);
+		$image = $this->autoOrient($image);
+		$image = $this->resize($image, $options);
+		$image = $this->quality($image, $options);
 		$image = $this->blur($image, $options);
 		$image = $this->sharpen($image, $options);
 
@@ -162,16 +166,17 @@ class ImageMagick extends Darkroom
 	/**
 	 * Applies the correct JPEG compression quality settings
 	 */
-	protected function quality(Imagick $image, array $options): void
+	protected function quality(Imagick $image, array $options): Imagick
 	{
 		$image->setImageCompressionQuality($options['quality']);
+		return $image;
 	}
 
 	/**
 	 * Creates the correct options to crop or resize the image
 	 * and translates the crop positions for imagemagick
 	 */
-	protected function resize(Imagick $image, array $options): void
+	protected function resize(Imagick $image, array $options): Imagick
 	{
 		// simple resize
 		if ($options['crop'] === false) {
@@ -220,6 +225,8 @@ class ImageMagick extends Darkroom
 		$image->thumbnailImage($options['width'], $options['height']);
 		$image->setGravity($gravity);
 		$image->cropImage($options['width'], $options['height'], 0, 0);
+
+		return $image;
 	}
 
 	/**
@@ -237,11 +244,12 @@ class ImageMagick extends Darkroom
 	/**
 	 * Sets thread limit
 	 */
-	protected function threads(Imagick $image, array $options): void
+	protected function threads(Imagick $image, array $options): Imagick
 	{
 		$image->setResourceLimit(
 			Imagick::RESOURCETYPE_THREAD,
 			$options['threads']
 		);
+		return $image;
 	}
 }
