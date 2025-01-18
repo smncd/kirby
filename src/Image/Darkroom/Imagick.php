@@ -136,14 +136,11 @@ class Imagick extends Darkroom
 	 */
 	public function process(string $file, array $options = []): array
 	{
-		$options  = $this->preprocess($file, $options);
-		$image    = new Image($file);
-		$profiles = $image->getImageProfiles('icc', true);
+		$options = $this->preprocess($file, $options);
 
+		$image = new Image($file);
 		$image = $this->threads($image, $options);
-		$image->stripImage();
 		$image = $this->interlace($image, $options);
-
 		$image = $this->coalesce($image);
 		$image = $this->grayscale($image, $options);
 		$image = $this->autoOrient($image);
@@ -151,10 +148,7 @@ class Imagick extends Darkroom
 		$image = $this->quality($image, $options);
 		$image = $this->blur($image, $options);
 		$image = $this->sharpen($image, $options);
-
-		if ($profiles !== []) {
-			$image->profileImage('icc', $profiles['icc']);
-		}
+		$image = $this->strip($image, $options);
 
 		if ($this->save($image, $file, $options) === false) {
 			throw new Exception(message: 'The imagemagick result could not be generated');
@@ -239,6 +233,25 @@ class Imagick extends Darkroom
 		}
 
 		return $image->writeImage($file);
+	}
+
+	/**
+	 * Removes all metadata but ICC profiles from the image
+	 */
+	protected function strip(Image $image, array $options): Image
+	{
+		// get the ICC profile before stripping
+		$profiles = $image->getImageProfiles('icc', true);
+
+		// strip all metadata
+		$image->stripImage();
+
+		// re-apply the ICC profile, if it exists
+		if ($icc = $profiles['icc'] ?? null) {
+			$image->profileImage('icc', $icc);
+		}
+
+		return $image;
 	}
 
 	/**

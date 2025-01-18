@@ -71,14 +71,19 @@ class ImagickTest extends TestCase
 			'width' => 250, // do some arbitrary transformation
 		]);
 
-		copy(static::FIXTURES . '/' . $basename, $file = static::TMP . '/' . $basename);
+		copy(
+			static::FIXTURES . '/' . $basename,
+			$file = static::TMP . '/' . $basename
+		);
 
 		// test if profile has been kept
-		// errors have to be redirected to /dev/null, otherwise they would be printed to stdout by Imagick
-		$originalProfile = shell_exec('identify -format "%[profile:icc]" ' . escapeshellarg($file) . ' 2>/dev/null');
+		// errors have to be redirected to /dev/null,
+		// otherwise they would be printed to stdout by Imagick
+		$command = 'identify -format "%[profile:icc]" ' . escapeshellarg($file) . ' 2>/dev/null';
+		$before  = shell_exec($command);
 		$im->process($file);
-		$profile = shell_exec('identify -format "%[profile:icc]" ' . escapeshellarg($file) . ' 2>/dev/null');
-		$this->assertSame($originalProfile, $profile);
+		$after   = shell_exec($command);
+		$this->assertSame($before, $after);
 
 		// ensure that other metadata has been stripped
 		$meta = shell_exec('identify -verbose ' . escapeshellarg($file));
