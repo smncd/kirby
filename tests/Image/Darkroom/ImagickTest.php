@@ -7,12 +7,12 @@ use Kirby\Filesystem\F;
 use Kirby\TestCase;
 
 /**
- * @coversDefaultClass \Kirby\Image\Darkroom\ImageMagick
+ * @coversDefaultClass \Kirby\Image\Darkroom\Imagick
  */
-class ImageMagickTest extends TestCase
+class ImagickTest extends TestCase
 {
 	public const FIXTURES = __DIR__ . '/../fixtures/image';
-	public const TMP      = KIRBY_TMP_DIR . '/Image.Darkroom.ImageMagick';
+	public const TMP      = KIRBY_TMP_DIR . '/Image.Darkroom.Imagick';
 
 	public function setUp(): void
 	{
@@ -26,7 +26,7 @@ class ImageMagickTest extends TestCase
 
 	public function testProcess()
 	{
-		$im = new ImageMagick();
+		$im = new Imagick();
 
 		copy(static::FIXTURES . '/cat.jpg', $file = static::TMP . '/cat.jpg');
 
@@ -53,7 +53,7 @@ class ImageMagickTest extends TestCase
 	 */
 	public function testSaveWithFormat()
 	{
-		$im = new ImageMagick(['format' => 'webp']);
+		$im = new Imagick(['format' => 'webp']);
 
 		copy(static::FIXTURES . '/cat.jpg', $file = static::TMP . '/cat.jpg');
 		$this->assertFalse(F::exists($webp = static::TMP . '/cat.webp'));
@@ -66,7 +66,7 @@ class ImageMagickTest extends TestCase
 	 */
 	public function testKeepColorProfileStripMeta(string $basename, bool $crop)
 	{
-		$im = new ImageMagick([
+		$im = new Imagick([
 			'crop'  => $crop,
 			'width' => 250, // do some arbitrary transformation
 		]);
@@ -74,7 +74,7 @@ class ImageMagickTest extends TestCase
 		copy(static::FIXTURES . '/' . $basename, $file = static::TMP . '/' . $basename);
 
 		// test if profile has been kept
-		// errors have to be redirected to /dev/null, otherwise they would be printed to stdout by ImageMagick
+		// errors have to be redirected to /dev/null, otherwise they would be printed to stdout by Imagick
 		$originalProfile = shell_exec('identify -format "%[profile:icc]" ' . escapeshellarg($file) . ' 2>/dev/null');
 		$im->process($file);
 		$profile = shell_exec('identify -format "%[profile:icc]" ' . escapeshellarg($file) . ' 2>/dev/null');

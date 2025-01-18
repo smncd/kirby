@@ -4,8 +4,8 @@ namespace Kirby\Image;
 
 use Exception;
 use Kirby\Image\Darkroom\GdLib;
+use Kirby\Image\Darkroom\Imagick;
 use Kirby\Image\Darkroom\ImageMagick;
-use Kirby\Image\Darkroom\LegacyImageMagick;
 
 /**
  * A wrapper around resizing and cropping
@@ -21,8 +21,8 @@ class Darkroom
 {
 	public static array $types = [
 		'gd'        => GdLib::class,
-		'im'        => ImageMagick::class,
-		'im-legacy' => LegacyImageMagick::class
+		'im'        => Imagick::class,
+		'im-legacy' => ImageMagick::class
 	];
 
 	public function __construct(
