@@ -16,7 +16,7 @@ use Kirby\Image\Focus;
  * @copyright Bastian Allgeier
  * @license   https://opensource.org/licenses/MIT
  *
- * @deprecated If you can, better use the `ImageMagick` class/ `im` driver
+ * @deprecated 5.0.0 Use `imagick` driver instead
  * @todo Remove in v7
  */
 class ImageMagick extends Darkroom
