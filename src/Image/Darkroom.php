@@ -20,9 +20,9 @@ use Kirby\Image\Darkroom\ImageMagick;
 class Darkroom
 {
 	public static array $types = [
-		'gd'        => GdLib::class,
-		'im'        => Imagick::class,
-		'im-legacy' => ImageMagick::class
+		'gd'      => GdLib::class,
+		'imagick' => Imagick::class,
+		'im'      => ImageMagick::class
 	];
 
 	public function __construct(
