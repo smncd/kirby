@@ -4,8 +4,8 @@ namespace Kirby\Image;
 
 use Exception;
 use Kirby\Image\Darkroom\GdLib;
-use Kirby\Image\Darkroom\Imagick;
 use Kirby\Image\Darkroom\ImageMagick;
+use Kirby\Image\Darkroom\Imagick;
 
 /**
  * A wrapper around resizing and cropping

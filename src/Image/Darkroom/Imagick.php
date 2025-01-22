@@ -8,14 +8,14 @@ use Kirby\Image\Darkroom;
 use Kirby\Image\Focus;
 
 /**
-* Imagick
-*
-* @package   Kirby Image
-* @author    Nico Hoffmann <nico@getkirby.com>
-* @link      https://getkirby.com
-* @copyright Bastian Allgeier
-* @license   https://opensource.org/licenses/MIT
-*/
+ * Imagick
+ *
+ * @package   Kirby Image
+ * @author    Nico Hoffmann <nico@getkirby.com>
+ * @link      https://getkirby.com
+ * @copyright Bastian Allgeier
+ * @license   https://opensource.org/licenses/MIT
+ */
 class Imagick extends Darkroom
 {
 	protected function autoOrient(Image $image): Image
@@ -27,25 +27,25 @@ class Imagick extends Darkroom
 				$image->flopImage();
 				break;
 			case Image::ORIENTATION_BOTTOMRIGHT:
-				$image->rotateImage("#000", 180);
+				$image->rotateImage('#000', 180);
 				break;
 			case Image::ORIENTATION_BOTTOMLEFT:
 				$image->flopImage();
-				$image->rotateImage("#000", 180);
+				$image->rotateImage('#000', 180);
 				break;
 			case Image::ORIENTATION_LEFTTOP:
 				$image->flopImage();
-				$image->rotateImage("#000", -90);
+				$image->rotateImage('#000', -90);
 				break;
 			case Image::ORIENTATION_RIGHTTOP:
-				$image->rotateImage("#000", 90);
+				$image->rotateImage('#000', 90);
 				break;
 			case Image::ORIENTATION_RIGHTBOTTOM:
 				$image->flopImage();
-				$image->rotateImage("#000", 90);
+				$image->rotateImage('#000', 90);
 				break;
 			case Image::ORIENTATION_LEFTBOTTOM:
-				$image->rotateImage("#000", -90);
+				$image->rotateImage('#000', -90);
 				break;
 			default: // Invalid orientation
 				break;
