@@ -248,6 +248,13 @@ class Imagick extends Darkroom
 
 		// re-apply the ICC profile, if it exists
 		if ($icc = $profiles['icc'] ?? null) {
+			// temporarily save in different format for PNG files
+			if (strtolower($image->getImageFormat()) === 'png') {
+				$blob  = $image->getImageBlob();
+				$image = new Image();
+				$image->readImageBlob($blob);
+			}
+
 			$image->profileImage('icc', $icc);
 		}
 
