@@ -96,7 +96,7 @@ class Imagick extends Darkroom
 	protected function grayscale(Image $image, array $options): Image
 	{
 		if ($options['grayscale'] === true) {
-			$image->setColorspace(Image::COLORSPACE_GRAY);
+			$image->setImageColorspace(Image::COLORSPACE_GRAY);
 		}
 
 		return $image;
@@ -112,7 +112,9 @@ class Imagick extends Darkroom
 		}
 
 		$amount = max(1, min(100, $options['sharpen'])) / 100;
-		return $image->sharepenImage(0.0, $amount);
+		$image->sharpenImage(0.0, $amount);
+
+		return $image;
 	}
 
 	/**
