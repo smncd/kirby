@@ -2,7 +2,6 @@
 
 use Kirby\Cms\App;
 use Kirby\Exception\LogicException;
-use Kirby\Filesystem\F;
 use Kirby\Panel\Field;
 use Kirby\Toolkit\I18n;
 
