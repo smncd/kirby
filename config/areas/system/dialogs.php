@@ -64,7 +64,6 @@ return [
 				'component' => 'k-remove-dialog',
 				'props' => [
 					'text' => I18n::translate('license.remove.text'),
-					'size' => 'medium',
 					'submitButton' => [
 						'icon'  => 'trash',
 						'text'  => I18n::translate('remove'),
